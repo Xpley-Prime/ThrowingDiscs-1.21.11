@@ -18,6 +18,8 @@ public final class DiscEnchantments {
             key("prilipanie");
     public static final ResourceKey<Enchantment> RICOCHET =
             key("otskok");
+    public static final ResourceKey<Enchantment> DURATION =
+            key("dlitelnost");
 
     private static ResourceKey<Enchantment> key(String id) {
         return ResourceKey.create(Registries.ENCHANTMENT,

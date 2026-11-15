@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.4 — Wind-Charged Crafting & Duration
+- Added Duration (Длительность) I–III for all five throwing discs, in enchanting tables and anvils.
+- Duration level adds +3 outbound flight ticks and +3 blocks of maximum outgoing range.
+- Reduced unenchanted flight times/ranges for every disc; level III exceeds former baseline slightly.
+- Copper, iron, gold and diamond disc crafting now consumes a Wind Charge in the center of the four-material ring.
+- Netherite disc still uses normal smithing upgrade of the wind-charge-crafted diamond disc.
+- Existing material-pickup recipe unlock advancements preserved.
+- Versioned mod and Actions artifact to 3.1.4.
+
+
 ## 3.1.3 — Recipe Discovery
 - Added five vanilla-style recipe unlock advancements for copper, iron, golden, diamond and netherite discs.
 - Recipes unlock when their crafting material first enters the player's inventory, producing the default "New Recipes Unlocked!" toast and adding the recipe to the recipe book.

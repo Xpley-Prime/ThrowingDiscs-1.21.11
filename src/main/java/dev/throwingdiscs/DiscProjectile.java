@@ -147,6 +147,11 @@ public final class DiscProjectile extends ThrowableItemProjectile {
         DiscStats spec = stats();
         int adhesion = enchant(world, DiscEnchantments.ADHESION);
         int ricochet = enchant(world, DiscEnchantments.RICOCHET);
+        int duration = enchant(world, DiscEnchantments.DURATION);
+        // Each level extends the outbound flight by 3 ticks AND 3 blocks.
+        // Extending only one limit would let the other end the throw early.
+        int maxFlightTicks = spec.flightTicks() + 3 * duration;
+        double maxFlightRange = spec.maxRange() + 3.0 * duration;
         int maxBounces = spec.maxBounces() + ricochet;
 
         if (windDashing) {
@@ -155,8 +160,8 @@ public final class DiscProjectile extends ThrowableItemProjectile {
             return;
         }
 
-        if (!returning && (outwardTicks >= spec.flightTicks() + bounces * 5
-                || travelled >= spec.maxRange())) returning = true;
+        if (!returning && (outwardTicks >= maxFlightTicks + bounces * 5
+                || travelled >= maxFlightRange)) returning = true;
 
         if (returning) {
             Vec3 from = position();

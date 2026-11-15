@@ -3,11 +3,12 @@
   "category": "equipment",
   "pattern": [
     " M ",
-    "M M",
+    "MWM",
     " M "
   ],
   "key": {
-    "M": "minecraft:iron_ingot"
+    "M": "minecraft:iron_ingot",
+    "W": "minecraft:wind_charge"
   },
   "result": {
     "id": "throwingdiscs:iron_disc",

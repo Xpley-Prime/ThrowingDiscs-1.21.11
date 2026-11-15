@@ -18,11 +18,11 @@ import net.minecraft.world.item.JukeboxSong;
 public final class ThrowingDiscs implements ModInitializer {
     public static final String ID = "throwingdiscs";
 
-    public static final DiscItem COPPER = register(new DiscStats("copper", 190, 3f, .85, 13, 18, 1, 4, 11));
-    public static final DiscItem IRON = register(new DiscStats("iron", 400, 4f, .95, 17, 22, 2, 6, 10));
-    public static final DiscItem GOLDEN = register(new DiscStats("golden", 140, 3.5f, 1.16, 17, 19, 3, 6, 7));
-    public static final DiscItem DIAMOND = register(new DiscStats("diamond", 900, 6f, 1.05, 22, 24, 4, 9, 9));
-    public static final DiscItem NETHERITE = register(new DiscStats("netherite", 1700, 7.5f, 1.14, 24, 26, 5, 12, 8));
+    public static final DiscItem COPPER = register(new DiscStats("copper", 190, 3f, .85, 8, 12, 1, 4, 11));
+    public static final DiscItem IRON = register(new DiscStats("iron", 400, 4f, .95, 11, 14, 2, 6, 10));
+    public static final DiscItem GOLDEN = register(new DiscStats("golden", 140, 3.5f, 1.16, 10, 12, 3, 6, 7));
+    public static final DiscItem DIAMOND = register(new DiscStats("diamond", 900, 6f, 1.05, 14, 16, 4, 9, 9));
+    public static final DiscItem NETHERITE = register(new DiscStats("netherite", 1700, 7.5f, 1.14, 16, 18, 5, 12, 8));
 
     private static final Identifier PROJECTILE_ID = Identifier.fromNamespaceAndPath(ID, "throwing_disc");
     private static final ResourceKey<EntityType<?>> PROJECTILE_KEY =
