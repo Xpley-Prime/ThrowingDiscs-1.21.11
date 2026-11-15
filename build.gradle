@@ -76,7 +76,7 @@ tasks.register('generateArcaneArt') {
                     image.setRGB(x,y,base)
                 } else {
                     int shape=index%8;boolean visible=false
-                    if(shape==0) visible=(Math.abs(dx+dy*.65)<1.25 && Math.abs(dy)<6)||r<2.8
+                    if(shape==0) visible=(Math.abs(dx+dy*0.65)<1.25 && Math.abs(dy)<6)||r<2.8
                     if(shape==1) visible=(r>3.1&&r<5.3)||r<2.0
                     if(shape==2) visible=(x>=4&&x<=11&&y>=5&&y<=12)||(x>=6&&x<=9&&y>=2&&y<=6)
                     if(shape==3) visible=(Math.abs(dx)<2&&Math.abs(dy)<6)||(Math.abs(dy)<2&&Math.abs(dx)<6)
