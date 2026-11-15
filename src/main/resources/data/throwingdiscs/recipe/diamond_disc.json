@@ -12,5 +12,6 @@
   "result": {
     "id": "throwingdiscs:diamond_disc",
     "count": 1
-  }
+  },
+  "show_notification": true
 }

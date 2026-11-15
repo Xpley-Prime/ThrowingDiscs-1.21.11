@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.3 — Recipe Discovery
+- Added five vanilla-style recipe unlock advancements for copper, iron, golden, diamond and netherite discs.
+- Recipes unlock when their crafting material first enters the player's inventory, producing the default "New Recipes Unlocked!" toast and adding the recipe to the recipe book.
+- Netherite upgrade also unlocks on obtaining the diamond disc or netherite upgrade smithing template.
+- Kept normal recipe unlock behavior for knowledge books and /recipe commands.
+- Versioned JAR and Actions artifact bumped to 3.1.3.
+
+
 ## 3.1.2 — World Interaction Update
 - Thrown discs shatter regular, tinted and all stained glass blocks and panes (35 types), with vanilla break particles/sounds and no glass drops.
 - Discs break decorated pottery and ordinary flower pots; their stored items and appropriate block drops are preserved.
