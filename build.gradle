@@ -15,6 +15,8 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.4'
 }
 
 processResources {
@@ -27,6 +29,10 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 java { withSourcesJar() }
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
 
 jar { from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } } }
 
