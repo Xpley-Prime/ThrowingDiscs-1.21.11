@@ -28,7 +28,7 @@ import java.util.UUID;
 /** Forty material rituals, summoned at a physical altar using consumed catalysts. */
 public final class ArcaneRituals {
     public enum Ritual {
-        RED_PULSE("Красный импульс",Items.REDSTONE,"Временное питание редстоун-машин"),
+        RED_PULSE("Красный импульс",Items.REDSTONE,"Устанавливает редстоун-блок для питания машин"),
         LUMEN_SEED("Семя света",Items.GLOWSTONE_DUST,"Выращивает светящийся кристалл"),
         WHITE_PILLAR("Белый столп",Items.QUARTZ,"Создаёт кварцевую колонну"),
         FAMILIAR("Зверь-спутник",Items.BONE,"Призывает волка"),
@@ -64,7 +64,7 @@ public final class ArcaneRituals {
         CAMP_HEARTH("Походный очаг",Items.CHARCOAL,"Разжигает походный костёр"),
         ASCENSION("Лестница",Items.STICK,"Создаёт опору для подъёма"),
         GUST("Порыв",Items.FEATHER,"Поднимает животных и врагов"),
-        NEW_LIFE("Новая жизнь",Items.EGG,"Призывает цыплёнка"),
+        NEW_LIFE("Новая жизнь",Items.EGG,"Призывает курицу"),
         SONG_OF_SEA("Песня моря",Items.NAUTILUS_SHELL,"Призывает морского друга"),
         SCRIBE_OATH("Клятва писца",Items.PAPER,"Создаёт книгу с пером"),
         INK_ECLIPSE("Чернильное затмение",Items.INK_SAC,"Погружает врагов во тьму");
