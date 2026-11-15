@@ -63,9 +63,6 @@
   "slots": [
     "mainhand"
   ],
-  "supported_items": [
-    "#minecraft:enchantable/mace",
-    "#throwingdiscs:discs"
-  ],
+  "supported_items": "#throwingdiscs:wind_burst_compatible",
   "weight": 2
 }
