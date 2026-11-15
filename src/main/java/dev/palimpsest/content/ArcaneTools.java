@@ -212,11 +212,11 @@ public final class ArcaneTools {
             }
             case WARP_THREAD -> {
                 ANCHORS.put(player.getUUID(),player.blockPosition());
-                ANCHOR_LEVELS.put(player.getUUID(),level.dimension().location().toString());
+                ANCHOR_LEVELS.put(player.getUUID(),level.dimension().identifier().toString());
             }
             case RETURN_PIN -> {
                 BlockPos anchor=ANCHORS.get(player.getUUID());
-                if(anchor==null || !level.dimension().location().toString().equals(ANCHOR_LEVELS.get(player.getUUID()))) success=false;
+                if(anchor==null || !level.dimension().identifier().toString().equals(ANCHOR_LEVELS.get(player.getUUID()))) success=false;
                 else player.teleportTo(anchor.getX()+.5,anchor.getY(),anchor.getZ()+.5);
             }
             case INK_PHIAL -> {
