@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.2.0 — Enchantment Balance
+- 12-enchantment whitelist on Throwing Discs: Sharpness, Smite, Bane of Arthropods, Fire Aspect, Unbreaking, Mending, Curse of Vanishing, Knockaway, Adhesion, Ricochet, Duration, Wind Burst.
+- Removed access to unrelated vanilla weapon, armor, tool, spear, trident and bow enchantments, including vanilla Knockback, Looting and Sweeping Edge.
+- Maximum **three distinct special enchantments** (Knockaway, Adhesion, Ricochet, Duration, Wind Burst) per disc; upgrading levels does not count as another enchantment.
+- Wind Burst now conflicts with Knockaway, Ricochet and Adhesion. Wind Burst + Duration remains allowed.
+- Adhesion is compatible with Sharpness, Smite, Bane of Arthropods, Fire Aspect and other normal combat enchantments.
+- Vanilla mutual exclusivity of Sharpness/Smite/Bane retained.
+- Shared validation for enchanting and anvil outputs, plus incremental ItemStack.enchant enforcement.
+- Item rename/repair with disallowed enchantments from old versions may require a grindstone to reset enchantments first.
+- Versioned JAR name updated to 3.2.0.
+
+
 ## 3.1.4 — Wind-Charged Crafting & Duration
 - Added Duration (Длительность) I–III for all five throwing discs, in enchanting tables and anvils.
 - Duration level adds +3 outbound flight ticks and +3 blocks of maximum outgoing range.

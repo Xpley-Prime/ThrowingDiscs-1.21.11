@@ -19,5 +19,9 @@
     "mainhand",
     "offhand"
   ],
-  "effects": {}
+  "effects": {},
+  "exclusive_set": [
+    "minecraft:wind_burst",
+    "minecraft:knockback"
+  ]
 }

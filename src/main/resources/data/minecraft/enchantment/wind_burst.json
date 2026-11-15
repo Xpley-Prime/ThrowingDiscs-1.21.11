@@ -64,5 +64,10 @@
     "mainhand"
   ],
   "supported_items": "#throwingdiscs:wind_burst_compatible",
-  "weight": 2
+  "weight": 2,
+  "exclusive_set": [
+    "throwingdiscs:otkid",
+    "throwingdiscs:prilipanie",
+    "throwingdiscs:otskok"
+  ]
 }

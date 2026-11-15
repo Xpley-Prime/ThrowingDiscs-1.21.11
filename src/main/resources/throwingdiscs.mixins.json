@@ -3,7 +3,9 @@
   "package": "dev.throwingdiscs.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "DisplayInterpolationInvoker"
+    "DisplayInterpolationInvoker",
+    "DiscItemStackEnchantMixin",
+    "DiscAnvilMenuMixin"
   ],
   "injectors": {
     "defaultRequire": 1

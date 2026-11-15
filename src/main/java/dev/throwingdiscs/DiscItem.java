@@ -1,5 +1,9 @@
 package dev.throwingdiscs;
 
+import net.fabricmc.fabric.api.item.v1.EnchantingContext;
+import net.fabricmc.fabric.api.item.v1.FabricItem;
+import net.minecraft.core.Holder;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -13,7 +17,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
 /** Throw from either hand. Surviving discs return to the hand or inventory. */
-public final class DiscItem extends Item {
+public final class DiscItem extends Item implements FabricItem {
     private final DiscStats stats;
 
     public DiscItem(DiscStats stats, Properties properties) {
@@ -23,6 +27,18 @@ public final class DiscItem extends Item {
 
     public DiscStats stats() {
         return stats;
+    }
+
+    @Override
+    public boolean canBeEnchantedWith(ItemStack stack, Holder<Enchantment> enchantment,
+                                       EnchantingContext context) {
+        // The item has a deliberately narrow whitelist, even when other
+        // vanilla tags happen to include discs. Preserve Minecraft's
+        // primary/support distinction between table and anvil.
+        if (!DiscEnchantingRules.canApply(stack, enchantment)) return false;
+        return context == EnchantingContext.PRIMARY
+                ? enchantment.value().isPrimaryItem(stack)
+                : enchantment.value().isSupportedItem(stack);
     }
 
     @Override
