@@ -73,6 +73,8 @@ public final class ArcaneRituals {
         Ritual(String name,Item catalyst,String description){this.name=name;this.catalyst=catalyst;this.description=description;}
     }
     private static final Map<UUID,Ritual> LAST=new HashMap<>();
+    public static java.util.Map<UUID,Ritual> snapshotHistory(){return java.util.Map.copyOf(LAST);}
+    public static void loadHistory(java.util.Map<UUID,Ritual> data){LAST.clear();LAST.putAll(data);}
     private ArcaneRituals() {}
 
     public static String describe(int start,int count) {
@@ -255,7 +257,7 @@ public final class ArcaneRituals {
             }
             case CRYSTAL_GARDEN -> changed=place(level,above,Blocks.AMETHYST_CLUSTER);
             case CAMP_HEARTH -> changed=place(level,above,Blocks.CAMPFIRE);
-            case ASCENSION -> changed=place(level,above,Blocks.LADDER);
+            case ASCENSION -> changed=place(level,above,Blocks.SCAFFOLDING);
             case GUST -> {
                 for(LivingEntity e:nearby(level,pos))if(e!=player)
                     e.addEffect(new MobEffectInstance(MobEffects.LEVITATION,60,0));

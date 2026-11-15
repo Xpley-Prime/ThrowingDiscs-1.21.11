@@ -90,6 +90,19 @@ public final class ArcaneTools {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries->ITEMS.values().forEach(entries::accept));
     }
 
+    public record Anchor(String dimension,BlockPos position){}
+    public static java.util.Map<UUID,Anchor> snapshotAnchors(){
+        java.util.Map<UUID,Anchor> result=new java.util.HashMap<>();
+        ANCHORS.forEach((uuid,pos)->{
+            String dimension=ANCHOR_LEVELS.get(uuid);
+            if(dimension!=null)result.put(uuid,new Anchor(dimension,pos));
+        });
+        return java.util.Map.copyOf(result);
+    }
+    public static void loadAnchors(java.util.Map<UUID,Anchor> data){
+        ANCHORS.clear();ANCHOR_LEVELS.clear();COOLDOWNS.clear();
+        data.forEach((uuid,a)->{ANCHORS.put(uuid,a.position());ANCHOR_LEVELS.put(uuid,a.dimension());});
+    }
     public static void bindAnchor(ServerPlayer player,BlockPos pos) {
         ANCHORS.put(player.getUUID(),pos);
         ANCHOR_LEVELS.put(player.getUUID(),player.level().dimension().identifier().toString());
@@ -205,7 +218,12 @@ public final class ArcaneTools {
                 else {
                     level.setWeatherParameters(0,2400,true,true);
                     // Lightning requires a physical struck location.
-                    level.setBlock(at.above(),Blocks.FIRE.defaultBlockState(),3);
+                    var bolt=net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(level,
+                        net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
+                    if(bolt!=null){
+                        bolt.setPos(at.getX()+.5,at.getY()+1,at.getZ()+.5);
+                        level.addFreshEntity(bolt);
+                    }else success=false;
                 }
             }
             case MAGNET_CORE -> {

@@ -5,6 +5,7 @@ import dev.palimpsest.content.ArcaneTools;
 import dev.palimpsest.content.ArcaneStations;
 import dev.palimpsest.content.ArcaneRituals;
 import dev.palimpsest.content.ArcaneCatalogue;
+import dev.palimpsest.content.ArcanePersistence;
 import dev.palimpsest.magic.MagicEngine;
 import dev.palimpsest.net.CastPayload;
 import dev.palimpsest.net.ManaPayload;
@@ -62,6 +63,7 @@ public final class Palimpsest implements ModInitializer {
         });
         ServerTickEvents.END_SERVER_TICK.register(MagicEngine::tick);
         ArcaneCatalogue.register();
+        ArcanePersistence.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) ->
             dispatcher.register(Commands.literal("palimpsest")
                 .executes(ctx -> {

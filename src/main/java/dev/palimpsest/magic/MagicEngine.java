@@ -56,6 +56,11 @@ public final class MagicEngine {
     }
     private MagicEngine() {}
 
+    public static java.util.Map<UUID,Float> snapshotInk(){return java.util.Map.copyOf(INK);}
+    public static void loadInk(java.util.Map<UUID,Float> data){
+        INK.clear();data.forEach((id,value)->INK.put(id,Math.clamp(value,0f,100f)));
+        LAST_CAST.clear();PENDING.clear();SEALS.clear();tick=0;
+    }
     public static float mana(ServerPlayer player) { return INK.getOrDefault(player.getUUID(),100f); }
     public static boolean spend(ServerPlayer player,int amount) {
         if(player.getAbilities().instabuild || amount<=0)return true;
