@@ -17,6 +17,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.2.1'
+      - name: Import user-provided music ZIP
+        id: audio
+        shell: bash
+        run: |
+          if python3 tools/import_music.py --search .; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No music ZIP in repository root; source validation only, no music JAR published"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Compile and package
         run: gradle clean build --no-daemon
       - name: Smoke test Minecraft dedicated server
@@ -35,12 +45,12 @@ jobs:
             echo "::error::Minecraft server did not reach the ready state (exit $result)."
             exit 1
           fi
-      - name: Upload compiled mod
-        if: always()
+      - name: Upload complete music mod
+        if: steps.audio.outputs.available == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ThrowingDiscs-3.0.0-MC1.21.11
-          path: build/libs/ThrowingDiscs-MC1.21.11-3.0.0.jar
+          name: ThrowingDiscs-3.1.0-MC1.21.11
+          path: build/libs/ThrowingDiscs-MC1.21.11-3.1.0.jar
           if-no-files-found: error
       - name: Upload smoke-test logs
         if: always()
