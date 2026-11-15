@@ -30,6 +30,15 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BellBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DecoratedPotBlock;
+import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -46,6 +55,11 @@ public final class DiscProjectile extends ThrowableItemProjectile {
     private static final double ENTITY_RADIUS = .32;
     private static final double WIND_SEARCH_RADIUS = 12.0;
     private static final int MAX_WIND_DASH_TICKS = 17;
+    // Includes normal, tinted, all stained glass blocks and their panes.
+    // Data tag allows modpacks to extend the list without modifying Java.
+    private static final TagKey<Block> SHATTERABLE_GLASS = TagKey.create(
+            Registries.BLOCK, Identifier.fromNamespaceAndPath(ThrowingDiscs.ID, "disc_shatterable_glass"));
+
 
     private Vec3 flight = new Vec3(0, 0, 1);
     private double travelled;
@@ -188,24 +202,81 @@ public final class DiscProjectile extends ThrowableItemProjectile {
         }
 
         if (blockHit) {
-            world.getBlockState(collision.getBlockPos()).onProjectileHit(
-                    world, world.getBlockState(collision.getBlockPos()), collision, this);
-            world.playSound(null, endpoint.x, endpoint.y, endpoint.z,
-                    SoundEvents.TRIDENT_HIT, SoundSource.PLAYERS, .55f, 1.4f);
-            if (bounces >= maxBounces) {
-                returning = true;
+            // Fragile blocks shatter rather than forcing a ricochet.
+            // Breaking them does not consume a bounce; the disc carries on.
+            boolean shattered = interactWithHitBlock(world, owner, collision);
+            if (shattered) {
+                Vec3 beyondSurface = endpoint.add(flight.scale(.18));
+                setPos(beyondSurface.x, beyondSurface.y, beyondSurface.z);
             } else {
-                bounces++;
-                Direction face = collision.getDirection();
-                Vec3 normal = new Vec3(face.getStepX(), face.getStepY(), face.getStepZ());
-                flight = reflect(flight, normal).normalize();
-                Vec3 away = endpoint.add(normal.scale(.14));
-                setPos(away.x, away.y, away.z);
+                world.playSound(null, endpoint.x, endpoint.y, endpoint.z,
+                        SoundEvents.TRIDENT_HIT, SoundSource.PLAYERS, .55f, 1.4f);
+                if (bounces >= maxBounces) {
+                    returning = true;
+                } else {
+                    bounces++;
+                    Direction face = collision.getDirection();
+                    Vec3 normal = new Vec3(face.getStepX(), face.getStepY(), face.getStepZ());
+                    flight = reflect(flight, normal).normalize();
+                    Vec3 away = endpoint.add(normal.scale(.14));
+                    setPos(away.x, away.y, away.z);
+                }
             }
         }
 
         if (pierced >= spec.maxTargets()) returning = true;
         syncDisplay(world);
+    }
+
+    /**
+     * Called exactly once per swept block contact on the server.
+     *
+     * @return true only when a fragile block was actually removed. In that
+     * case the projectile can continue without spending one of its ricochets.
+     */
+    private boolean interactWithHitBlock(ServerLevel world, ServerPlayer owner,
+                                         BlockHitResult collision) {
+        BlockPos pos = collision.getBlockPos();
+        BlockState state = world.getBlockState(pos);
+
+        // A bell's built-in onProjectileHit handler rings only for a proper
+        // hit. Explicit ringing supports hits from any direction and avoids
+        // sending the onProjectileHit event twice.
+        if (state.getBlock() instanceof BellBlock bell) {
+            bell.attemptToRing(this, world, pos, collision.getDirection());
+            return false;
+        }
+
+        if (state.is(SHATTERABLE_GLASS)) {
+            // Glass and glass panes shatter like glass without Silk Touch:
+            // breaking particles and sound, but no dropped glass item.
+            return world.destroyBlock(pos, false, owner);
+        }
+
+        if (state.getBlock() instanceof DecoratedPotBlock) {
+            // Preserve the normal projectile reaction: cracked pot, sherd
+            // drops and its contents. Some projectile types are disallowed by
+            // vanilla; explicitly break the pot if it remains afterwards.
+            state.onProjectileHit(world, state, collision, this);
+            if (world.getBlockState(pos).getBlock() instanceof DecoratedPotBlock) {
+                BlockState cracked = world.getBlockState(pos)
+                        .setValue(DecoratedPotBlock.CRACKED, true);
+                world.setBlock(pos, cracked, Block.UPDATE_CLIENTS);
+                return world.destroyBlock(pos, true, owner);
+            }
+            return true;
+        }
+
+        if (state.getBlock() instanceof FlowerPotBlock) {
+            // Ordinary flower pots and potted plants are also small vases.
+            // Let vanilla drop the pot and its plant normally.
+            return world.destroyBlock(pos, true, owner);
+        }
+
+        // Keep targets, buttons, lightning rods, candles and every other
+        // vanilla projectile-reactive block working as before.
+        state.onProjectileHit(world, state, collision, this);
+        return false;
     }
 
     /**
