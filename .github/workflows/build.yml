@@ -40,18 +40,38 @@ jobs:
           set -uo pipefail
           mkdir -p run
           echo 'eula=true' > run/eula.txt
-          timeout 105s gradle runServer --console plain --no-daemon > server-start.log 2>&1
-          rc=$?
-          tail -n 100 server-start.log
-          if ! grep -Eq 'Done \([0-9.]+s\)!|For help, type "help"' server-start.log; then
-            echo "::error::Minecraft server did not start (exit code $rc)"
-            exit 1
-          fi
+          echo "Starting Minecraft dedicated Fabric server..."
+          timeout 125s gradle runServer --console plain --no-daemon > server-start.log 2>&1 &
+          pid=$!
+          ready=0
+          for i in $(seq 1 130); do
+            if grep -Eq 'Done \([0-9.]+s\)!|For help, type "help"' server-start.log 2>/dev/null; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$pid" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          kill "$pid" 2>/dev/null || true
+          wait "$pid" 2>/dev/null || true
+          echo "---- Last 100 lines of server log ----"
+          tail -n 100 server-start.log || true
           if grep -Eq 'Encountered an unexpected exception|Crash Report' server-start.log; then
             echo "::error::Minecraft server crashed"
             exit 1
           fi
-          echo "Fabric server reached ready state"
+          if [ "$ready" -ne 1 ]; then
+            echo "::error::Minecraft server did not reach ready state"
+            exit 1
+          fi
+          echo "Dedicated Fabric server reached ready state."
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Palimpsest-server-startup-log
+          path: server-start.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
