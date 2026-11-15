@@ -29,85 +29,128 @@ public final class GlyphScreen extends Screen {
     private int feedbackColor=MUTED;
     private boolean dragging;
     private int canvasX,canvasY,canvasSize;
+    private boolean atlasOpen;
+    private int atlasPage;
 
     public GlyphScreen() {super(Component.literal("Палимпсест · Письмена"));}
     @Override protected void init() {
-        canvasSize=Math.max(100,Math.min(260,Math.min(width-62,height-135)));
-        canvasX=(width-canvasSize)/2;
-        canvasY=Math.max(54,(height-canvasSize)/2);
+        // Screen space is measured in logical GUI pixels, NOT physical monitor pixels.
+        // Keep every widget inside the viewport for any Minecraft GUI scale.
+        int availableHeight=Math.max(96,height-136);
+        boolean threeColumns=width>=720;
+        int availableWidth=threeColumns?width-400:width-36;
+        canvasSize=Math.max(90,Math.min(285,Math.min(availableWidth,availableHeight)));
+        canvasX=threeColumns?Math.max(150,(width-canvasSize)/2-16):(width-canvasSize)/2;
+        canvasY=56+Math.max(0,(Math.max(canvasSize,availableHeight)-canvasSize)/2);
+        canvasY=Math.min(canvasY,Math.max(56,height-70-canvasSize));
     }
     @Override public boolean isPauseScreen() {return false;}
 
     @Override public void render(GuiGraphics g,int mouseX,int mouseY,float delta) {
-        // The transparent veil keeps the actual Minecraft world visible behind the ink.
-        g.fill(0,0,width,height,0xB0090C18);
-        int cx=canvasX+canvasSize/2, cy=canvasY+canvasSize/2;
-        g.drawCenteredString(font,"✦  PALIMPSEST  ·  ЧЕРНИЛА МИРА  ✦",width/2,16,0xFFF0D6A6);
-        g.drawCenteredString(font,"Перо связывает начертания с реальностью",width/2,31,MUTED);
-        g.fill(canvasX-9,canvasY-9,canvasX+canvasSize+9,canvasY+canvasSize+9,0xB1151A30);
-        g.fill(canvasX-2,canvasY-2,canvasX+canvasSize+2,canvasY+canvasSize+2,FRAME);
-        g.fill(canvasX,canvasY,canvasX+canvasSize,canvasY+canvasSize,BACK);
+        g.fill(0,0,width,height,0xCD090C18);
+        final int gold=0xFFF0D6A6;
+        String heading="✦ PALIMPSEST · ЧЕРНИЛА МИРА ✦";
+        g.drawCenteredString(font,fit(heading,width-20),width/2,9,gold);
+        g.drawCenteredString(font,fit("Живая каллиграфия: каждый штрих создаё магию",width-20),
+            width/2,23,MUTED);
+
+        if(atlasOpen) {
+            int panelX=12,panelY=54,panelW=width-24,panelH=Math.max(90,height-119);
+            g.fill(panelX,panelY,panelX+panelW,panelY+panelH,0xEF13192D);
+            Glyph.Role role=switch(atlasPage){case 1->Glyph.Role.ELEMENT;case 2->Glyph.Role.INFLECTION;default->Glyph.Role.INTENT;};
+            drawLexicon(g,panelX+12,panelY+11,panelW-24,panelH-22,role);
+            g.drawCenteredString(font,"1 — намерение     2 — стихия     3 — оттенок     Tab — рисование",
+                width/2,height-20,0xFFCBD1DC);
+            return;
+        }
+
+        int x=canvasX,y=canvasY,cx=x+canvasSize/2,cy=y+canvasSize/2;
+        g.fill(x-7,y-7,x+canvasSize+7,y+canvasSize+7,0xD3151A30);
+        g.fill(x-2,y-2,x+canvasSize+2,y+canvasSize+2,FRAME);
+        g.fill(x,y,x+canvasSize,y+canvasSize,BACK);
         for(int i=1;i<8;i++) {
-            int x=canvasX+canvasSize*i/8, y=canvasY+canvasSize*i/8;
-            g.fill(x,canvasY,x+1,canvasY+canvasSize,0x2E8497B7);
-            g.fill(canvasX,y,canvasX+canvasSize,y+1,0x2E8497B7);
+            int gx=x+canvasSize*i/8,gy=y+canvasSize*i/8;
+            g.fill(gx,y,gx+1,y+canvasSize,0x2E8497B7);
+            g.fill(x,gy,x+canvasSize,gy+1,0x2E8497B7);
         }
-        // Decorative compass — ink is a gesture, not a preset button.
-        g.fill(cx-1,canvasY+8,cx+1,canvasY+17,0x9995BCE7);
-        g.fill(cx-1,canvasY+canvasSize-17,cx+1,canvasY+canvasSize-8,0x9995BCE7);
-        g.fill(canvasX+8,cy-1,canvasX+17,cy+1,0x9995BCE7);
-        g.fill(canvasX+canvasSize-17,cy-1,canvasX+canvasSize-8,cy+1,0x9995BCE7);
-
-        if(active.size()>1) renderPath(g,active,canvasX,canvasY,canvasSize,0xFFC3F4FF,3);
+        g.fill(cx-1,y+8,cx+1,y+16,0x9995BCE7);
+        g.fill(cx-1,y+canvasSize-16,cx+1,y+canvasSize-8,0x9995BCE7);
+        g.fill(x+8,cy-1,x+16,cy+1,0x9995BCE7);
+        g.fill(x+canvasSize-16,cy-1,x+canvasSize-8,cy+1,0x9995BCE7);
+        if(active.size()>1) renderPath(g,active,x,y,canvasSize,0xFFC3F4FF,2);
         if(!dragging && active.isEmpty()) {
-            g.drawCenteredString(font,"✧",cx,cy-12,0x6684BCE6);
-            g.drawCenteredString(font,"НАЧЕРТАЙ СИМВОЛ",cx,cy+2,0x667DB6DD);
+            g.drawCenteredString(font,"✧",cx,cy-13,0x6684BCE6);
+            g.drawCenteredString(font,fit("НАЧЕРТАЙ СИМВОЛ",canvasSize-10),cx,cy+3,0xFF719DBB);
         }
-        g.drawCenteredString(font,feedback,width/2,canvasY+canvasSize+14,feedbackColor);
-        g.drawCenteredString(font,"Enter — исполнить    Backspace — назад    R — стереть    Esc — закрыть",
-            width/2,height-20,0xFFCBD1DC);
-        g.drawString(font,"§bЧЕРНИЛА §f"+PalimpsestClient.mana+" / 100",11,12,0xFFFFFFFF,true);
+        Glyph.Role current=roleFor(Math.min(2,strokes.size()));
+        String phase=strokes.size()>=3?"ФОРМУЛА ГОТОВА":(strokes.size()+1)+"/3 · "+switch(current){
+            case INTENT->"НАМЕРЕНИЕ";case ELEMENT->"СТИХИЯ";case INFLECTION->"ОТТЕНОК (необязательно)";};
+        g.drawCenteredString(font,fit(phase,canvasSize+28),cx,y-24,GLOW);
+        g.drawCenteredString(font,fit(feedback,Math.max(80,Math.min(width-20,canvasSize+110))),
+            cx,y+canvasSize+12,feedbackColor);
 
-        for(int i=0;i<3;i++) {
-            int bx=canvasX+i*(canvasSize/3),by=canvasY-25;
-            Glyph.Role role=roleFor(i);
-            String label=(i+1)+" "+ switch(role){case INTENT->"НАМЕРЕНИЕ";case ELEMENT->"СТИХИЯ";case INFLECTION->"ОТТЕНОК";};
-            int color= i<recognized.size() ? recognized.get(i).glyph().color() : i==strokes.size()? GLOW:MUTED;
-            g.drawString(font,label,bx,by,color,false);
+        int rightX=x+canvasSize+21,rightW=width-rightX-11;
+        if(rightW>=155) {
+            drawLexicon(g,rightX,y-6,rightW,Math.min(height-100,canvasSize+25),current);
+        } else {
+            g.drawCenteredString(font,"Tab — атлас всех рун",width/2,
+                Math.min(height-63,y+canvasSize+27),gold);
         }
-        if(width>=canvasSize+320) drawLexicon(g,canvasX+canvasSize+24,canvasY-4);
-        if(strokes.size()>0) drawFormula(g,canvasX-134,canvasY);
+        int leftW=x-20;
+        if(leftW>=120) drawFormula(g,12,y,Math.min(leftW-10,220));
+        drawFooter(g);
         super.render(g,mouseX,mouseY,delta);
     }
 
-    private void drawFormula(GuiGraphics g,int x,int y) {
-        if(x<8)return;
-        g.drawString(font,"ЗАПИСАНО",x,y,0xFFE2C998,true);
-        for(int i=0;i<recognized.size();i++) {
-            Glyph glyph=recognized.get(i).glyph();
-            g.drawString(font,(i+1)+". "+glyph.display(),x,y+18+i*30,glyph.color(),true);
-            g.drawString(font,(int)Math.round(100*recognized.get(i).confidence())+"% сходство",
-                x+13,y+29+i*30,MUTED,false);
-        }
-        if(strokes.size()>=2) g.drawString(font,"↵ Enter: сотворить",x,y+135,0xFFB6E7B4,false);
+    private void drawFooter(GuiGraphics g) {
+        g.fill(0,height-55,width,height,0xEF111629);
+        String mana="ЧЕРНИЛА "+PalimpsestClient.mana+" / 100";
+        g.drawCenteredString(font,mana,width/2,height-51,GLOW);
+        g.drawCenteredString(font,fit("Enter — исполнить    Backspace — назад    R — очистить",width-12),
+            width/2,height-35,0xFFCBD1DC);
+        g.drawCenteredString(font,fit("Esc — закрыть    Tab — полный атлас",width-12),
+            width/2,height-20,0xFFCBD1DC);
     }
 
-    private void drawLexicon(GuiGraphics g,int x,int y) {
-        Glyph.Role role=roleFor(Math.min(2,strokes.size()));
-        g.drawString(font,"АТЛАС НАЧЕРТАНИЙ",x,y,0xFFF0D6A6,true);
-        g.drawString(font,"Образцы · веди от золотой точки",x,y+13,MUTED,false);
+    private void drawFormula(GuiGraphics g,int x,int y,int w) {
+        g.drawString(font,fit("ЗАПИСАННЫЕ РУНЫ",w),x,y,0xFFE2C998,true);
+        if(recognized.isEmpty()) g.drawString(font,fit("Пока пусто",w),x,y+20,MUTED);
+        for(int i=0;i<recognized.size();i++) {
+            Glyph glyph=recognized.get(i).glyph();
+            g.drawString(font,fit((i+1)+". "+glyph.display(),w),x,y+22+i*36,glyph.color(),true);
+            g.drawString(font,fit(Math.round(100*recognized.get(i).confidence())+"% точность",w-8),
+                x+8,y+35+i*36,MUTED,false);
+        }
+        if(strokes.size()>=2) g.drawString(font,fit("Enter — сотворить",w),x,y+148,0xFFB6E7B4);
+    }
+
+    private void drawLexicon(GuiGraphics g,int x,int y,int w,int h,Glyph.Role role) {
+        g.drawString(font,fit("АТЛАС НАЧЕРТАНИЙ",w),x,y,0xFFF0D6A6,true);
+        g.drawString(font,fit("Начинай с золотой точки",w),x,y+14,MUTED);
         List<Glyph> glyphs=Glyph.ofRole(role);
+        int rowH=Math.max(42,Math.min(61,(h-39)/Math.max(1,glyphs.size())));
         for(int i=0;i<glyphs.size();i++) {
             Glyph glyph=glyphs.get(i);
-            int yy=y+35+i*53;
-            g.fill(x,yy,x+47,yy+43,0xAA1C1D32);
-            renderPath(g,glyph.template(),x+4,yy+4,37,glyph.color(),1);
+            int yy=y+36+i*rowH;
+            if(yy+39>y+h) break;
+            int tile=Math.min(40,rowH-5),tx=x+2;
+            g.fill(tx,yy,tx+tile,yy+tile,0xAA1C1D32);
+            renderPath(g,glyph.template(),tx+3,yy+3,tile-6,glyph.color(),1);
             Point origin=glyph.template().getFirst();
-            int sx=(int)(x+4+origin.x()*37),sy=(int)(yy+4+origin.y()*37);
-            g.fill(sx-2,sy-2,sx+3,sy+3,0xFFFFD56B);
-            g.drawString(font,glyph.display(),x+54,yy+7,glyph.color(),true);
-            g.drawString(font,glyph.hint(),x+54,yy+21,MUTED,false);
+            int sx=(int)(tx+3+origin.x()*(tile-6)),sy=(int)(yy+3+origin.y()*(tile-6));
+            g.fill(sx-2,sy-2,sx+2,sy+2,0xFFFFD56B);
+            int textX=x+tile+10,textW=Math.max(20,w-tile-11);
+            g.drawString(font,fit(glyph.display(),textW),textX,yy+6,glyph.color(),true);
+            g.drawString(font,fit(glyph.hint(),textW),textX,yy+20,MUTED);
         }
+    }
+
+    private String fit(String s,int maxWidth) {
+        if(maxWidth<=12)return "";
+        if(font.width(s)<=maxWidth)return s;
+        String suffix="…";
+        while(!s.isEmpty() && font.width(s+suffix)>maxWidth) s=s.substring(0,s.length()-1);
+        return s+suffix;
     }
 
     /** Draw continuous segments using GUI rectangles without special shaders or mixins. */
@@ -178,6 +221,14 @@ public final class GlyphScreen extends Screen {
         return super.mouseReleased(e);
     }
     @Override public boolean keyPressed(KeyEvent key) {
+        if(key.key()==GLFW.GLFW_KEY_TAB) { atlasOpen=!atlasOpen;return true; }
+        if(atlasOpen) {
+            if(key.key()==GLFW.GLFW_KEY_1 || key.key()==GLFW.GLFW_KEY_KP_1) atlasPage=0;
+            if(key.key()==GLFW.GLFW_KEY_2 || key.key()==GLFW.GLFW_KEY_KP_2) atlasPage=1;
+            if(key.key()==GLFW.GLFW_KEY_3 || key.key()==GLFW.GLFW_KEY_KP_3) atlasPage=2;
+            if(key.key()==GLFW.GLFW_KEY_ESCAPE) atlasOpen=false;
+            return true;
+        }
         if(key.key()==GLFW.GLFW_KEY_ENTER || key.key()==GLFW.GLFW_KEY_KP_ENTER) {
             if(strokes.size()>=2) cast();return true;
         }
