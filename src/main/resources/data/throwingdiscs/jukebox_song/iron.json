@@ -1,0 +1,10 @@
+{
+  "sound_event": {
+    "sound_id": "throwingdiscs:record.iron"
+  },
+  "description": {
+    "translate": "jukebox_song.throwingdiscs.iron"
+  },
+  "length_in_seconds": 101.108,
+  "comparator_output": 4
+}
