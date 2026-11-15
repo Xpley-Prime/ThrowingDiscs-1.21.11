@@ -243,7 +243,6 @@ public final class ArcaneTools {
             }
             case BRIDGE_SPOOL -> {
                 success=false;BlockPos start=player.blockPosition().below();
-                BlockPos step=player.getDirection().getNormal().multiply(1)==null?start:start;
                 for(int n=1;n<=4;n++) {
                     BlockPos p=start.relative(player.getDirection(),n);
                     if(put(level,p,Blocks.GLASS.defaultBlockState())) success=true;

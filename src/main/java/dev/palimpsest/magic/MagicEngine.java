@@ -57,6 +57,18 @@ public final class MagicEngine {
     private MagicEngine() {}
 
     public static float mana(ServerPlayer player) { return INK.getOrDefault(player.getUUID(),100f); }
+    public static boolean spend(ServerPlayer player,int amount) {
+        if(player.getAbilities().instabuild || amount<=0)return true;
+        if(mana(player)<amount)return false;
+        INK.put(player.getUUID(),mana(player)-amount);
+        ServerPlayNetworking.send(player,new ManaPayload(Math.round(mana(player))));
+        return true;
+    }
+    public static void refill(ServerPlayer player,float amount) {
+        INK.put(player.getUUID(),Math.min(100,Math.max(0,mana(player)+amount)));
+        ServerPlayNetworking.send(player,new ManaPayload(Math.round(mana(player))));
+    }
+
 
     public static void cast(ServerPlayer player,Glyph intent,Glyph element,Glyph modifier,float calligraphy) {
         if (!player.getMainHandItem().is(Palimpsest.QUILL) &&
