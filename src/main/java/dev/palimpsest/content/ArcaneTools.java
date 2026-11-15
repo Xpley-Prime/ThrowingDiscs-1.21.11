@@ -111,7 +111,7 @@ public final class ArcaneTools {
         private final Tool type;
         RelicItem(Tool type,Properties properties) {super(properties);this.type=type;}
         @Override public InteractionResult use(Level level, Player player, InteractionHand hand) {
-            if(player instanceof ServerPlayer server) invoke(server,type);
+            if(player instanceof ServerPlayer server) invoke(server,type,hand);
             return InteractionResult.SUCCESS;
         }
     }
@@ -131,7 +131,7 @@ public final class ArcaneTools {
         player.addEffect(new MobEffectInstance(kind,ticks,amp));
     }
 
-    private static void invoke(ServerPlayer player,Tool type) {
+    private static void invoke(ServerPlayer player,Tool type,InteractionHand hand) {
         ServerLevel level=(ServerLevel)player.level();
         long now=level.getGameTime();
         if(COOLDOWNS.getOrDefault(player.getUUID(),-10000L)>now) {say(player,"Артефакт ещё заряжается.");return;}
@@ -244,7 +244,7 @@ public final class ArcaneTools {
             case INK_PHIAL -> {
                 success=MagicEngine.mana(player)<99;
                 MagicEngine.refill(player,45f);
-                if(success && !player.getAbilities().instabuild) player.getMainHandItem().shrink(1);
+                if(success && !player.getAbilities().instabuild) player.getItemInHand(hand).shrink(1);
             }
             case MOB_LURE -> {
                 for(LivingEntity e:level.getEntitiesOfClass(LivingEntity.class,player.getBoundingBox().inflate(16),e->e!=player)) {
