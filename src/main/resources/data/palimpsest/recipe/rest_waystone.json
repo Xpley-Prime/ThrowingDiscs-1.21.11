@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","category":"building","pattern":["ASA","SCS","ASA"],"key":{"A":"minecraft:amethyst_shard","S":"minecraft:stone","C":"minecraft:bread"},"result":{"id":"palimpsest:rest_waystone","count":1}}

@@ -1,0 +1,1 @@
+{"type":"minecraft:block","pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"palimpsest:guardian_plinth"}],"conditions":[{"condition":"minecraft:survives_explosion"}]}]}
