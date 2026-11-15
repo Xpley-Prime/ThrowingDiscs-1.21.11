@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"minecraft:block/magma"}}
+{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/lava_crucible"}}

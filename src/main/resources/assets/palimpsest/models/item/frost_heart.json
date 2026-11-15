@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/blue_ice"}}
+{"parent":"minecraft:item/generated","textures":{"layer0":"palimpsest:item/frost_heart"}}

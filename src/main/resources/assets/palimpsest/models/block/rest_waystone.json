@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"minecraft:block/white_concrete"}}
+{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/rest_waystone"}}

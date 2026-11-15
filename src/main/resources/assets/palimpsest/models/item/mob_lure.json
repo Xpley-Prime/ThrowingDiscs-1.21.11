@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/carrot_on_a_stick"}}
+{"parent":"minecraft:item/generated","textures":{"layer0":"palimpsest:item/mob_lure"}}

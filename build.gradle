@@ -44,3 +44,65 @@ publishing {
         }
     }
 }
+
+
+// Procedural original runic pixel art. Generated PNGs are included in the final JAR.
+def arcaneArtDir=layout.buildDirectory.dir('generated/palimpsest-art')
+sourceSets.main.resources.srcDir(arcaneArtDir)
+tasks.register('generateArcaneArt') {
+    outputs.dir(arcaneArtDir)
+    doLast {
+        def root=arcaneArtDir.get().asFile
+        def outputImage={ String group, String name, int index, boolean station ->
+            def image=new java.awt.image.BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_ARGB)
+            float h=((index*41+(station?107:19))%360)/360.0f
+            int accent=java.awt.Color.getHSBColor(h,0.64f,0.96f).getRGB()
+            int sub=java.awt.Color.getHSBColor(h,0.54f,0.46f).getRGB()
+            int gold=0xFFFFE19A
+            int metal=0xFF6F708B
+            int dark=0xFF1B2037
+            for(int y=0;y<16;y++)for(int x=0;x<16;x++){
+                double dx=x-7.5,dy=y-7.5,r=Math.sqrt(dx*dx+dy*dy)
+                if(station){
+                    int edge=Math.min(Math.min(x,15-x),Math.min(y,15-y))
+                    int base=edge==0?dark:edge==1?metal:edge==2?sub:0xFF292E44
+                    if((x==3||x==12)&&(y==3||y==12))base=gold
+                    if(r>=4.3 && r<=5.4)base=accent
+                    if((index&1)!=0 && y==7 && x>=5 && x<=10)base=accent
+                    if((index&2)!=0 && x==7 && y>=4 && y<=11)base=gold
+                    if((index&4)!=0 && Math.abs(dx-dy)<0.7 && r<4.5)base=accent
+                    if((index&8)!=0 && Math.abs(dx+dy)<0.7 && r<4.5)base=gold
+                    if((index&16)!=0 && (x==5||x==10) && y>=5 && y<=10)base=accent
+                    image.setRGB(x,y,base)
+                } else {
+                    int shape=index%8;boolean visible=false
+                    if(shape==0) visible=(Math.abs(dx+dy*.65)<1.25 && Math.abs(dy)<6)||r<2.8
+                    if(shape==1) visible=(r>3.1&&r<5.3)||r<2.0
+                    if(shape==2) visible=(x>=4&&x<=11&&y>=5&&y<=12)||(x>=6&&x<=9&&y>=2&&y<=6)
+                    if(shape==3) visible=(Math.abs(dx)<2&&Math.abs(dy)<6)||(Math.abs(dy)<2&&Math.abs(dx)<6)
+                    if(shape==4) visible=(r>=2.8&&r<5.4&&y>=4)||(y>=2&&y<5&&x>=6&&x<=9)
+                    if(shape==5) visible=(Math.abs(dx-dy)<1.4&&r<6)||(r<3)
+                    if(shape==6) visible=(x>=3&&x<=12&&y>=3&&y<=13)&&((x==3||x==12||y==3||y==13)||(y==7||y==10))
+                    if(shape==7) visible=(Math.abs(dx)+Math.abs(dy)<6.5)
+                    if(visible){
+                        int col=r<2.1?gold:(x+y)%5==0?sub:accent
+                        image.setRGB(x,y,col)
+                    }
+                }
+            }
+            def file=new File(root,'assets/palimpsest/textures/'+group+'/'+name+'.png')
+            file.parentFile.mkdirs()
+            javax.imageio.ImageIO.write(image,'png',file)
+        }
+        def blocks=fileTree('src/main/resources/assets/palimpsest/models/block')
+            .matching { include '*.json' }.files.collect { it.name.substring(0,it.name.length()-5) }.sort()
+        def items=fileTree('src/main/resources/assets/palimpsest/models/item')
+            .matching { include '*.json' }.files.collect { it.name.substring(0,it.name.length()-5) }
+            .findAll { it!='scribe_quill' && !blocks.contains(it) }.sort()
+        items.eachWithIndex { name,index -> outputImage('item',name,index,false) }
+        blocks.eachWithIndex { name,index -> outputImage('block',name,index,true) }
+        if(items.size()!=32 || blocks.size()!=28)
+            throw new GradleException('Expected 32 tool textures and 28 station textures, got '+items.size()+'/'+blocks.size())
+    }
+}
+tasks.named('processResources') { dependsOn(tasks.named('generateArcaneArt')) }
