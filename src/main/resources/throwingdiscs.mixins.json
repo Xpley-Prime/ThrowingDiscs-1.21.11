@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "dev.throwingdiscs.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "DisplayInterpolationInvoker"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
