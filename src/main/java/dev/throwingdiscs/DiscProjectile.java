@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import dev.throwingdiscs.mixin.DisplayInterpolationInvoker;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -388,6 +390,10 @@ public final class DiscProjectile extends ThrowableItemProjectile {
             display.setNoGravity(true);
             display.setInvulnerable(true);
             display.setRequiresPrecisePosition(true);
+            // Vanilla item_display normally snaps to each server-tick position.
+            // Keep 2 ticks of client-side blending for both position and yaw/pitch;
+            // the physics/hitbox of DiscProjectile remain server-authoritative.
+            ((DisplayInterpolationInvoker) display).throwingdiscs$setPosRotInterpolationDuration(2);
             display.getSlot(0).set(getItem().copy());
             display.setPos(getX(), getY(), getZ());
             if (!world.addFreshEntity(display)) return;
@@ -395,7 +401,8 @@ public final class DiscProjectile extends ThrowableItemProjectile {
         }
         display.setPos(getX(), getY(), getZ());
         display.setXRot(83 + (float) Math.sin(tickCount * .34) * 6);
-        display.setYRot((tickCount * 40) % 360);
+        // 32 degrees/tick; vanilla angle interpolation fills in frames between ticks.
+        display.setYRot((tickCount * 32) % 360);
         display.setDeltaMovement(Vec3.ZERO);
     }
 
