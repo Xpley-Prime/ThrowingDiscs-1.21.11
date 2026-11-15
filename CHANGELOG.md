@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.1 — Smooth Flight
+- Enabled vanilla 2-tick position and rotation interpolation for each flying disc's item_display visual.
+- Reduced abrupt-looking yaw increments to 32 degrees/tick; client render blends angles between updates.
+- Gameplay hitboxes, projectiles, bounce, pickup, enchantments and jukebox support unchanged.
+- Artifact now contains version 3.1.1 in its name.
+- When the music ZIP is not available, CI publishes a clearly labeled NO-MUSIC preview to test visual changes.
+
+
 ## 3.1.0 — Music Update
 - Added vanilla jukebox support to all 5 throwing discs.
 - Five custom jukebox song entries and streamed audio declarations.
