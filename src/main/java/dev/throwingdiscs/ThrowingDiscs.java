@@ -13,6 +13,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.JukeboxSong;
 
 public final class ThrowingDiscs implements ModInitializer {
     public static final String ID = "throwingdiscs";
@@ -50,9 +51,10 @@ public final class ThrowingDiscs implements ModInitializer {
     private static DiscItem register(DiscStats stats) {
         Identifier id = Identifier.fromNamespaceAndPath(ID, stats.name() + "_disc");
         ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
+        ResourceKey<JukeboxSong> song = ResourceKey.create(Registries.JUKEBOX_SONG, Identifier.fromNamespaceAndPath(ID, stats.name()));
         return Registry.register(BuiltInRegistries.ITEM, key,
                 new DiscItem(stats, new Item.Properties().setId(key)
-                        .durability(stats.durability()).enchantable(12)));
+                        .durability(stats.durability()).enchantable(12).jukeboxPlayable(song)));
     }
 
     @Override
