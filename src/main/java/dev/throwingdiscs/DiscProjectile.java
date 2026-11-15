@@ -318,11 +318,20 @@ public final class DiscProjectile extends ThrowableItemProjectile {
         boolean hitTarget = target.getBoundingBox().inflate(ENTITY_RADIUS).clip(from, end).isPresent()
                 || target.getBoundingBox().inflate(ENTITY_RADIUS).contains(end);
         setPos(end.x, end.y, end.z);
+
+        // Fast Wind Burst dashes must interact with bells and breakables too.
+        boolean shatteredBlock = block.getType() == HitResult.Type.BLOCK
+                && interactWithHitBlock(world, owner, block);
+        if (shatteredBlock) {
+            Vec3 through = end.add(flight.scale(.18));
+            setPos(through.x, through.y, through.z);
+        }
+
         if (hitTarget) {
             strike(world, owner, target, spec);
             windDashing = false;
             returning = true;
-        } else if (block.getType() == HitResult.Type.BLOCK) {
+        } else if (block.getType() == HitResult.Type.BLOCK && !shatteredBlock) {
             windDashing = false;
             returning = true;
         }
