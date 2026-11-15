@@ -66,7 +66,7 @@ public final class ArcaneTools {
         WARP_THREAD("warp_thread","Нить возвращения","Запоминает точку"),
         RETURN_PIN("return_pin","Булавка пути","Возвращает к сохранённой точке"),
         INK_PHIAL("ink_phial","Сосуд чернил","Восстанавливает чернила"),
-        MOB_LURE("mob_lure","Приманка созданий","Привлекает зверей"),
+        MOB_LURE("mob_lure","Зов весны","Пробуждает размножение животных"),
         BLOOD_PRISM("blood_prism","Кровавый кристалл","Меняет здоровье на чернила"),
         WISP_LANTERN("wisp_lantern","Светлячковый фонарь","Устанавливает факел"),
         EARTH_STAMP("earth_stamp","Печать почвы","Оживляет грунт"),
@@ -247,10 +247,14 @@ public final class ArcaneTools {
                 if(success && !player.getAbilities().instabuild) player.getItemInHand(hand).shrink(1);
             }
             case MOB_LURE -> {
-                for(LivingEntity e:level.getEntitiesOfClass(LivingEntity.class,player.getBoundingBox().inflate(16),e->e!=player)) {
-                    Vec3 towards=player.position().subtract(e.position()).normalize();
-                    e.push(towards.x*.3,0,towards.z*.3);
+                int affected=0;
+                for(net.minecraft.world.entity.animal.Animal animal:level.getEntitiesOfClass(
+                    net.minecraft.world.entity.animal.Animal.class,player.getBoundingBox().inflate(12),
+                    net.minecraft.world.entity.animal.Animal::canFallInLove)) {
+                    animal.setInLove(player);
+                    affected++;
                 }
+                success=affected>0;
             }
             case BLOOD_PRISM -> {
                 if(player.getHealth()>4) {
