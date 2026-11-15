@@ -2,6 +2,8 @@ package dev.palimpsest;
 
 import dev.palimpsest.glyph.*;
 import dev.palimpsest.content.ArcaneTools;
+import dev.palimpsest.content.ArcaneStations;
+import dev.palimpsest.content.ArcaneRituals;
 import dev.palimpsest.magic.MagicEngine;
 import dev.palimpsest.net.CastPayload;
 import dev.palimpsest.net.ManaPayload;
@@ -32,6 +34,7 @@ public final class Palimpsest implements ModInitializer {
         QUILL = Registry.register(BuiltInRegistries.ITEM,QUILL_KEY,
             new Item(new Item.Properties().setId(QUILL_KEY).stacksTo(1)));
         ArcaneTools.register();
+        ArcaneStations.register();
         PayloadTypeRegistry.playC2S().register(CastPayload.ID,CastPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ManaPayload.ID,ManaPayload.CODEC);
 
