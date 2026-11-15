@@ -1,1 +1,1 @@
-{"type":"minecraft:crafting_shapeless","category":"equipment","ingredients":[{"item":"minecraft:amethyst_shard"},{"item":"minecraft:carrot_on_a_stick"}],"result":{"id":"palimpsest:mob_lure","count":1}}
+{"type":"minecraft:crafting_shapeless","category":"equipment","ingredients":["minecraft:amethyst_shard","minecraft:carrot_on_a_stick"],"result":{"id":"palimpsest:mob_lure","count":1}}

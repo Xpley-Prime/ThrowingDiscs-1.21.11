@@ -58,6 +58,10 @@ jobs:
           wait "$pid" 2>/dev/null || true
           echo "---- Last 100 lines of server log ----"
           tail -n 100 server-start.log || true
+          if grep -Eq "Couldn't parse data file 'palimpsest|Failed to parse .*palimpsest|Failed to load.*palimpsest" server-start.log; then
+            echo "::error::Malformed Palimpsest resources detected during server boot"
+            exit 1
+          fi
           if grep -Eq 'Encountered an unexpected exception|Crash Report' server-start.log; then
             echo "::error::Minecraft server crashed"
             exit 1

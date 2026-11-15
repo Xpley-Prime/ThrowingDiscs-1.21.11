@@ -1,1 +1,1 @@
-{"type":"minecraft:crafting_shapeless","category":"equipment","ingredients":[{"item":"minecraft:amethyst_shard"},{"item":"minecraft:magma_cream"}],"result":{"id":"palimpsest:fire_heart","count":1}}
+{"type":"minecraft:crafting_shapeless","category":"equipment","ingredients":["minecraft:amethyst_shard","minecraft:magma_cream"],"result":{"id":"palimpsest:fire_heart","count":1}}
