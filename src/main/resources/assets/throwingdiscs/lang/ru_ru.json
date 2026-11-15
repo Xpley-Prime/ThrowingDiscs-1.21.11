@@ -4,5 +4,7 @@
   "item.throwingdiscs.golden_disc": "Золотой метательный диск",
   "item.throwingdiscs.diamond_disc": "Алмазный метательный диск",
   "item.throwingdiscs.netherite_disc": "Незеритовый метательный диск",
-  "itemGroup.throwingdiscs": "Метательные диски"
+  "itemGroup.throwingdiscs": "Метательные диски",
+  "item.throwingdiscs.honey_copper_disc": "Медовый медный диск",
+  "item.throwingdiscs.slime_copper_disc": "Слизневый медный диск"
 }

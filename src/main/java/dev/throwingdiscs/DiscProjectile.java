@@ -49,6 +49,8 @@ public final class DiscProjectile extends ThrowableItemProjectile {
     private boolean offHand;
     private boolean creative;
     private boolean delivered;
+    /** Honey discs can carry exactly one dropped item entity (one entire stack). */
+    private ItemStack cargo = ItemStack.EMPTY;
     private UUID throwerId;
     private UUID displayId;
     private final Set<UUID> alreadyHit = new HashSet<>();
@@ -83,6 +85,14 @@ public final class DiscProjectile extends ThrowableItemProjectile {
     @Override
     protected double getDefaultGravity() {
         return 0;
+    }
+
+    private boolean isHoney() {
+        return getItem().is(ThrowingDiscs.HONEY_COPPER);
+    }
+
+    private boolean isSlime() {
+        return getItem().is(ThrowingDiscs.SLIME_COPPER);
     }
 
     private DiscStats stats() {
@@ -135,7 +145,7 @@ public final class DiscProjectile extends ThrowableItemProjectile {
             flight = flight.scale(.58).add(desired.scale(.42)).normalize();
             double speed = spec.speed() * 1.22;
             Vec3 next = from.add(flight.scale(Math.min(speed, homeVector.length())));
-            damageEntities(world, owner, from, next, spec);
+            if (!isHoney()) damageEntities(world, owner, from, next, spec);
             setPos(next.x, next.y, next.z);
             syncDisplay(world);
             return;
@@ -155,7 +165,8 @@ public final class DiscProjectile extends ThrowableItemProjectile {
         boolean blockHit = collision.getType() == HitResult.Type.BLOCK;
         Vec3 endpoint = blockHit ? collision.getLocation() : to;
 
-        damageEntities(world, owner, from, endpoint, spec);
+        if (isHoney()) collectItem(world, from, endpoint);
+        else damageEntities(world, owner, from, endpoint, spec);
         travelled += from.distanceTo(endpoint);
         setPos(endpoint.x, endpoint.y, endpoint.z);
 
@@ -202,12 +213,60 @@ public final class DiscProjectile extends ThrowableItemProjectile {
             LivingEntity victim = hit.entity();
             alreadyHit.add(victim.getUUID());
             pierced++;
-            if (victim.hurtServer(world, world.damageSources().thrown(this, owner), spec.damage())) {
+            if (isSlime()) {
+                // A pure utility disc: NO damage, including armor-bypassing damage.
+                // Knockback is approximately triple a normal disc's shove.
+                victim.push(flight.x * 1.35, .40, flight.z * 1.35);
+                victim.hurtMarked = true;
+                world.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
+                        SoundEvents.SLIME_SQUISH, SoundSource.PLAYERS, .8f, 1.2f);
+            } else if (victim.hurtServer(world, world.damageSources().thrown(this, owner), spec.damage())) {
                 victim.push(flight.x * .24, .09, flight.z * .24);
                 world.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
                         SoundEvents.TRIDENT_HIT, SoundSource.PLAYERS, .55f, 1.6f);
             }
         }
+    }
+
+    /**
+     * Sticky copper: intersect the path with dropped item hitboxes.
+     * Only one ItemEntity is claimed per throw, but its entire stack
+     * is transported. The original entity is discarded atomically on
+     * the server; the stack is saved with the projectile.
+     */
+    private void collectItem(ServerLevel world, Vec3 from, Vec3 to) {
+        if (!cargo.isEmpty()) return;
+        List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class,
+                new AABB(from, to).inflate(.65),
+                e -> !e.isRemoved() && !e.getItem().isEmpty());
+        items.sort(Comparator.comparingDouble(e -> e.distanceToSqr(from)));
+        for (ItemEntity item : items) {
+            if (!item.getBoundingBox().inflate(.45).intersects(new AABB(from, to).inflate(.16)))
+                continue;
+            cargo = item.getItem().copy();
+            item.discard();
+            returning = true;
+            world.playSound(null, item.getX(), item.getY(), item.getZ(),
+                    SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .6f, 1.25f);
+            break;
+        }
+    }
+
+    private void deliverCargo(ServerPlayer owner) {
+        if (cargo.isEmpty()) return;
+        ItemStack deliveredStack = cargo.copy();
+        cargo = ItemStack.EMPTY;
+        if (!owner.addItem(deliveredStack) && !deliveredStack.isEmpty()) {
+            owner.drop(deliveredStack, false);
+        }
+    }
+
+    private void dropCargo(ServerLevel world) {
+        if (cargo.isEmpty()) return;
+        ItemEntity dropped = new ItemEntity(world, getX(), getY(), getZ(), cargo.copy());
+        dropped.setPickUpDelay(5);
+        world.addFreshEntity(dropped);
+        cargo = ItemStack.EMPTY;
     }
 
     static Vec3 reflect(Vec3 vector, Vec3 normal) {
@@ -258,6 +317,7 @@ public final class DiscProjectile extends ThrowableItemProjectile {
                 owner.drop(stack, false);
             }
         }
+        deliverCargo(owner);
         discard();
     }
 
@@ -270,6 +330,7 @@ public final class DiscProjectile extends ThrowableItemProjectile {
             item.setPickUpDelay(15);
             world.addFreshEntity(item);
         }
+        dropCargo(world);
         discard();
     }
 
@@ -295,6 +356,7 @@ public final class DiscProjectile extends ThrowableItemProjectile {
         output.putBoolean("DiscCreative", creative);
         output.putBoolean("DiscDelivered", delivered);
         output.putString("DiscHits", String.join(",", alreadyHit.stream().map(UUID::toString).toList()));
+        if (!cargo.isEmpty()) output.store("DiscCargo", ItemStack.CODEC, cargo);
     }
 
     @Override
@@ -318,6 +380,7 @@ public final class DiscProjectile extends ThrowableItemProjectile {
         offHand = input.getBooleanOr("DiscOffHand", false);
         creative = input.getBooleanOr("DiscCreative", false);
         delivered = input.getBooleanOr("DiscDelivered", false);
+        cargo = input.read("DiscCargo", ItemStack.CODEC).orElse(ItemStack.EMPTY);
         for (String s : input.getStringOr("DiscHits", "").split(",")) {
             try { if (!s.isBlank()) alreadyHit.add(UUID.fromString(s)); }
             catch (IllegalArgumentException ignored) { }
