@@ -80,7 +80,7 @@ public final class ArcaneRituals {
         Ritual[] rituals=Ritual.values();
         for(int i=start;i<Math.min(rituals.length,start+count);i++)
             out.append(i+1).append(". ").append(rituals[i].name).append(" — ")
-                .append(rituals[i].catalyst.getDescription().getString()).append("\n");
+                .append(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(rituals[i].catalyst).toString()).append("\n");
         return out.toString().stripTrailing();
     }
 
@@ -137,7 +137,7 @@ public final class ArcaneRituals {
     private static boolean spawn(ServerLevel level,BlockPos pos,EntityType<?> type) {
         var entity=type.create(level,EntitySpawnReason.MOB_SUMMONED);
         if(entity==null)return false;
-        entity.moveTo(pos.getX()+.5,pos.getY()+1,pos.getZ()+.5,0,0);
+        entity.setPos(pos.getX()+.5,pos.getY()+1,pos.getZ()+.5);
         return level.addFreshEntity(entity);
     }
     private static boolean enact(ServerPlayer player,BlockPos pos,Ritual r) {
