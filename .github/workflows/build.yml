@@ -1,10 +1,13 @@
 name: Build Palimpsest
 on:
   push:
+    branches:
+      - palimpsest-1.21.11
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -14,155 +17,43 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.2.1'
-      - name: Compile Fabric mod
-        run: gradle build --stacktrace
-      - name: Validate packaged content
+      - name: Build and unit tests
+        run: gradle build --stacktrace --console plain
+      - name: Verify packaged assets
         shell: bash
         run: |
           set -euo pipefail
-          jarfile="$(find build/libs -maxdepth 1 -name 'palimpsest-*.jar' ! -name '*sources*' | head -n 1)"
-          test -n "$jarfile"
-          jar tf "$jarfile" > jar-contents.txt
-          tools="$(grep -c '^assets/palimpsest/textures/item/.*[.]png jar-contents.txt || true)"
-          stations="$(grep -c '^assets/palimpsest/textures/block/.*[.]png jar-contents.txt || true)"
-          recipes="$(grep -c '^data/palimpsest/recipe/' jar-contents.txt || true)"
-          echo "Packaged textures: $tools tools, $stations stations; recipes: $recipes"
-          test "$tools" -ge 33
-          test "$stations" -eq 28
-          test "$recipes" -ge 61
-          python3 - <<'PY'
-          import json, pathlib
-          files=list(pathlib.Path('src/main/resources').rglob('*.json'))
-          for p in files:
-              json.loads(p.read_text('utf-8'))
-          print(f'Validated {len(files)} JSON resources')
-          PY
-      - name: Headless Minecraft server smoke test
+          JAR="$(find build/libs -maxdepth 1 -name 'palimpsest-*.jar' ! -name '*sources*' | head -n 1)"
+          test -n "$JAR"
+          jar tf "$JAR" > jar-contents.txt
+          TOOL_PNG="$(grep -cE '^assets/palimpsest/textures/item/.*\.png$' jar-contents.txt)"
+          BLOCK_PNG="$(grep -cE '^assets/palimpsest/textures/block/.*\.png$' jar-contents.txt)"
+          RECIPES="$(grep -cE '^data/palimpsest/recipe/.*\.json$' jar-contents.txt)"
+          echo "In JAR: $TOOL_PNG item textures, $BLOCK_PNG block textures, $RECIPES recipes"
+          test "$TOOL_PNG" -eq 33
+          test "$BLOCK_PNG" -eq 28
+          test "$RECIPES" -ge 61
+          python3 -c "import pathlib,json; f=list(pathlib.Path('src/main/resources').rglob('*.json')); [json.loads(p.read_text()) for p in f]; print('Parsed JSON assets:',len(f))"
+      - name: Smoke-test dedicated Minecraft server
         shell: bash
         run: |
           set -uo pipefail
           mkdir -p run
-          printf 'eula=true\n' > run/eula.txt
-          timeout 105s gradle runServer --console=plain --no-daemon > server-start.log 2>&1
+          echo 'eula=true' > run/eula.txt
+          timeout 105s gradle runServer --console plain --no-daemon > server-start.log 2>&1
           rc=$?
           tail -n 100 server-start.log
           if ! grep -Eq 'Done \([0-9.]+s\)!|For help, type "help"' server-start.log; then
-            echo "::error::The dedicated server did not reach the ready state (exit $rc)"
+            echo "::error::Minecraft server did not start (exit code $rc)"
             exit 1
           fi
           if grep -Eq 'Encountered an unexpected exception|Crash Report' server-start.log; then
-            echo "::error::Minecraft crashed during startup"
+            echo "::error::Minecraft server crashed"
             exit 1
           fi
-          echo "Dedicated Fabric server started successfully."
+          echo "Fabric server reached ready state"
       - uses: actions/upload-artifact@v4
-        with:
-          name: Palimpsest-1.21.11-jar
-          path: build/libs/palimpsest-*.jar
- jar-contents.txt || true)"
-          stations="$(grep -c '^assets/palimpsest/textures/block/' jar-contents.txt || true)"
-          recipes="$(grep -c '^data/palimpsest/recipe/' jar-contents.txt || true)"
-          echo "Packaged textures: $tools tools, $stations stations; recipes: $recipes"
-          test "$tools" -ge 33
-          test "$stations" -eq 28
-          test "$recipes" -ge 61
-          python3 - <<'PY'
-          import json, pathlib
-          files=list(pathlib.Path('src/main/resources').rglob('*.json'))
-          for p in files:
-              json.loads(p.read_text('utf-8'))
-          print(f'Validated {len(files)} JSON resources')
-          PY
-      - name: Headless Minecraft server smoke test
-        shell: bash
-        run: |
-          set -uo pipefail
-          mkdir -p run
-          printf 'eula=true\n' > run/eula.txt
-          timeout 105s gradle runServer --console=plain --no-daemon > server-start.log 2>&1
-          rc=$?
-          tail -n 100 server-start.log
-          if ! grep -Eq 'Done \([0-9.]+s\)!|For help, type "help"' server-start.log; then
-            echo "::error::The dedicated server did not reach the ready state (exit $rc)"
-            exit 1
-          fi
-          if grep -Eq 'Encountered an unexpected exception|Crash Report' server-start.log; then
-            echo "::error::Minecraft crashed during startup"
-            exit 1
-          fi
-          echo "Dedicated Fabric server started successfully."
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Palimpsest-1.21.11-jar
-          path: build/libs/palimpsest-*.jar
- jar-contents.txt || true)"
-          recipes="$(grep -c '^data/palimpsest/recipe/' jar-contents.txt || true)"
-          echo "Packaged textures: $tools tools, $stations stations; recipes: $recipes"
-          test "$tools" -ge 33
-          test "$stations" -eq 28
-          test "$recipes" -ge 61
-          python3 - <<'PY'
-          import json, pathlib
-          files=list(pathlib.Path('src/main/resources').rglob('*.json'))
-          for p in files:
-              json.loads(p.read_text('utf-8'))
-          print(f'Validated {len(files)} JSON resources')
-          PY
-      - name: Headless Minecraft server smoke test
-        shell: bash
-        run: |
-          set -uo pipefail
-          mkdir -p run
-          printf 'eula=true\n' > run/eula.txt
-          timeout 105s gradle runServer --console=plain --no-daemon > server-start.log 2>&1
-          rc=$?
-          tail -n 100 server-start.log
-          if ! grep -Eq 'Done \([0-9.]+s\)!|For help, type "help"' server-start.log; then
-            echo "::error::The dedicated server did not reach the ready state (exit $rc)"
-            exit 1
-          fi
-          if grep -Eq 'Encountered an unexpected exception|Crash Report' server-start.log; then
-            echo "::error::Minecraft crashed during startup"
-            exit 1
-          fi
-          echo "Dedicated Fabric server started successfully."
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Palimpsest-1.21.11-jar
-          path: build/libs/palimpsest-*.jar
- jar-contents.txt || true)"
-          stations="$(grep -c '^assets/palimpsest/textures/block/' jar-contents.txt || true)"
-          recipes="$(grep -c '^data/palimpsest/recipe/' jar-contents.txt || true)"
-          echo "Packaged textures: $tools tools, $stations stations; recipes: $recipes"
-          test "$tools" -ge 33
-          test "$stations" -eq 28
-          test "$recipes" -ge 61
-          python3 - <<'PY'
-          import json, pathlib
-          files=list(pathlib.Path('src/main/resources').rglob('*.json'))
-          for p in files:
-              json.loads(p.read_text('utf-8'))
-          print(f'Validated {len(files)} JSON resources')
-          PY
-      - name: Headless Minecraft server smoke test
-        shell: bash
-        run: |
-          set -uo pipefail
-          mkdir -p run
-          printf 'eula=true\n' > run/eula.txt
-          timeout 105s gradle runServer --console=plain --no-daemon > server-start.log 2>&1
-          rc=$?
-          tail -n 100 server-start.log
-          if ! grep -Eq 'Done \([0-9.]+s\)!|For help, type "help"' server-start.log; then
-            echo "::error::The dedicated server did not reach the ready state (exit $rc)"
-            exit 1
-          fi
-          if grep -Eq 'Encountered an unexpected exception|Crash Report' server-start.log; then
-            echo "::error::Minecraft crashed during startup"
-            exit 1
-          fi
-          echo "Dedicated Fabric server started successfully."
-      - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: Palimpsest-1.21.11-jar
           path: build/libs/palimpsest-*.jar
