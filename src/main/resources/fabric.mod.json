@@ -1,29 +1,22 @@
 {
   "schemaVersion": 1,
-  "id": "throwingdiscs",
+  "id": "palimpsest",
   "version": "${version}",
-  "name": "Throwing Discs",
-  "description": "Trailer-inspired boomerang discs with real projectile hitboxes, ricochets and spinning visuals.",
-  "authors": [
-    "Community mod project"
-  ],
+  "name": "Palimpsest: Ink of Reality",
+  "description": "Hand-draw magical glyphs. A spell grammar interprets your ink server-side, changing entities and the world.",
+  "authors": ["Palimpsest Project"],
+  "contact": {},
   "license": "MIT",
+  "icon": "assets/palimpsest/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "dev.throwingdiscs.ThrowingDiscs"
-    ],
-    "client": [
-      "dev.throwingdiscs.ThrowingDiscsClient"
-    ]
+    "main": ["dev.palimpsest.Palimpsest"],
+    "client": ["dev.palimpsest.client.PalimpsestClient"]
   },
   "depends": {
-    "fabricloader": ">=0.18.1",
-    "minecraft": "1.21.11",
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~1.21.11",
     "java": ">=21",
     "fabric-api": "*"
-  },
-  "mixins": [
-    "throwingdiscs.mixins.json"
-  ]
+  }
 }

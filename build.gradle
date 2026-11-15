@@ -1,27 +1,40 @@
 plugins {
-    id 'net.fabricmc.fabric-loom-remap' version '1.14.10'
+    id 'net.fabricmc.fabric-loom-remap' version '1.14-SNAPSHOT'
+    id 'maven-publish'
 }
-group = 'dev.throwingdiscs'
-version = '3.2.0'
-base { archivesName = 'ThrowingDiscs-MC1.21.11' }
+
+version = project.mod_version
+group = project.maven_group
+
+base { archivesName = project.archives_base_name }
+
+repositories { mavenCentral() }
+
 dependencies {
-    minecraft 'com.mojang:minecraft:1.21.11'
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.officialMojangMappings()
-    modImplementation 'net.fabricmc:fabric-loader:0.18.1'
-    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.141.1+1.21.11'
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-    withSourcesJar()
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
 }
+
 tasks.withType(JavaCompile).configureEach {
     options.release = 21
     options.encoding = 'UTF-8'
 }
-processResources {
-    inputs.property 'version', project.version
-    filesMatching('fabric.mod.json') {
-        expand 'version': project.version
+java { withSourcesJar() }
+
+jar { from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } } }
+
+publishing {
+    publications {
+        create('mavenJava', MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
     }
 }

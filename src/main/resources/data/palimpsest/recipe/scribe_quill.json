@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": ["  A", " F ", "B  "],
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "F": "minecraft:feather",
+    "B": "minecraft:blaze_rod"
+  },
+  "result": {"id":"palimpsest:scribe_quill", "count":1}
+}

@@ -1,68 +1,22 @@
-name: Build and smoke-test Fabric mod
+name: Build Palimpsest
 on:
-  workflow_dispatch:
   push:
-    branches: ["main", "master"]
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Java 21
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-      - name: Gradle 9.2.1
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.2.1'
-      - name: Import user-provided music ZIP
-        id: audio
-        shell: bash
-        run: |
-          if python3 tools/import_music.py --search .; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::No music ZIP in repository root; source validation only, no music JAR published"
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Compile and package
-        run: gradle clean build --no-daemon
-      - name: Smoke test Minecraft dedicated server
-        shell: bash
-        run: |
-          mkdir -p run
-          printf 'eula=true\n' > run/eula.txt
-          set +e
-          timeout 100s gradle runServer --no-daemon > smoke.log 2>&1
-          result=$?
-          set -e
-          tail -n 100 smoke.log
-          if grep -Eq 'Done \([0-9.,]+s\)!|Done \(' smoke.log; then
-            echo "Minecraft server started successfully with Throwing Discs."
-          else
-            echo "::error::Minecraft server did not reach the ready state (exit $result)."
-            exit 1
-          fi
-      - name: Upload complete music mod
-        if: steps.audio.outputs.available == 'true'
-        uses: actions/upload-artifact@v4
+      - name: Compile Fabric mod
+        run: gradle build --stacktrace
+      - uses: actions/upload-artifact@v4
         with:
-          name: ThrowingDiscs-3.2.0-MC1.21.11
-          path: build/libs/ThrowingDiscs-MC1.21.11-3.2.0.jar
-          if-no-files-found: error
-      - name: Upload preview mod without audio
-        if: steps.audio.outputs.available != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ThrowingDiscs-3.2.0-MC1.21.11-preview-NO-MUSIC
-          path: build/libs/ThrowingDiscs-MC1.21.11-3.2.0.jar
-          if-no-files-found: error
-      - name: Upload smoke-test logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-smoke-logs
-          path: smoke.log
-          if-no-files-found: ignore
+          name: Palimpsest-1.21.11-jar
+          path: build/libs/palimpsest-*.jar
