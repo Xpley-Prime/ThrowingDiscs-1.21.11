@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.2 — World Interaction Update
+- Thrown discs shatter regular, tinted and all stained glass blocks and panes (35 types), with vanilla break particles/sounds and no glass drops.
+- Discs break decorated pottery and ordinary flower pots; their stored items and appropriate block drops are preserved.
+- Discs ring village bells on hit, including during a fast Wind Burst dash.
+- Fragile blocks no longer spend a ricochet: a disc continues through the broken block.
+- All other projectile-sensitive blocks keep their vanilla onProjectileHit interactions.
+- JAR and GitHub Actions artifacts updated to version 3.1.2.
+
+
 ## 3.1.1 — Smooth Flight
 - Enabled vanilla 2-tick position and rotation interpolation for each flying disc's item_display visual.
 - Reduced abrupt-looking yaw increments to 32 degrees/tick; client render blends angles between updates.
