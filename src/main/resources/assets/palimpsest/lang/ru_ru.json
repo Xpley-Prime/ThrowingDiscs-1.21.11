@@ -61,5 +61,6 @@
   "block.palimpsest.beast_bell": "Звериный колокол",
   "block.palimpsest.relic_forge": "Кузня реликвий",
   "block.palimpsest.gold_refiner": "Золотой ректификатор",
-  "block.palimpsest.soul_reliquary": "Реликварий душ"
+  "block.palimpsest.soul_reliquary": "Реликварий душ",
+  "key.palimpsest.codex": "Книга чернил"
 }

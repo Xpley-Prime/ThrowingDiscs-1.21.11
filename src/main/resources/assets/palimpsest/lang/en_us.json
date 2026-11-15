@@ -61,5 +61,6 @@
   "block.palimpsest.beast_bell": "beast bell",
   "block.palimpsest.relic_forge": "relic forge",
   "block.palimpsest.gold_refiner": "gold refiner",
-  "block.palimpsest.soul_reliquary": "soul reliquary"
+  "block.palimpsest.soul_reliquary": "soul reliquary",
+  "key.palimpsest.codex": "Ink Codex"
 }

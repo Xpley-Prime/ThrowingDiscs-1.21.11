@@ -15,8 +15,11 @@ public final class PalimpsestClient implements ClientModInitializer {
         KeyMapping.Category category=KeyMapping.Category.register(Palimpsest.id("casting"));
         KeyMapping open=KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.palimpsest.draw",InputConstants.Type.KEYSYM,InputConstants.KEY_G,category));
+        KeyMapping codex=KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.palimpsest.codex",InputConstants.Type.KEYSYM,InputConstants.KEY_K,category));
         ClientPlayNetworking.registerGlobalReceiver(ManaPayload.ID,(payload,context)->mana=payload.mana());
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while(codex.consumeClick()) if(client.player!=null && client.screen==null) client.setScreen(new CodexScreen());
             while(open.consumeClick()) {
                 if(client.player!=null && client.screen==null &&
                     (client.player.getMainHandItem().is(Palimpsest.QUILL) ||
