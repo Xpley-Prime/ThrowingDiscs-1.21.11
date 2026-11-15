@@ -5,6 +5,7 @@
   "item.throwingdiscs.diamond_disc": "Diamond Throwing Disc",
   "item.throwingdiscs.netherite_disc": "Netherite Throwing Disc",
   "itemGroup.throwingdiscs": "Throwing Discs",
-  "item.throwingdiscs.honey_copper_disc": "Honey Copper Throwing Disc",
-  "item.throwingdiscs.slime_copper_disc": "Slime Copper Throwing Disc"
+  "enchantment.throwingdiscs.otkid": "Knockaway",
+  "enchantment.throwingdiscs.prilipanie": "Adhesion",
+  "enchantment.throwingdiscs.otskok": "Ricochet"
 }

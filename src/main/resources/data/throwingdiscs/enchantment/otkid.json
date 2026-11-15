@@ -1,0 +1,23 @@
+{
+  "description": {
+    "translate": "enchantment.throwingdiscs.otkid"
+  },
+  "supported_items": "#throwingdiscs:discs",
+  "primary_items": "#throwingdiscs:discs",
+  "weight": 5,
+  "max_level": 3,
+  "min_cost": {
+    "base": 12,
+    "per_level_above_first": 15
+  },
+  "max_cost": {
+    "base": 42,
+    "per_level_above_first": 15
+  },
+  "anvil_cost": 2,
+  "slots": [
+    "mainhand",
+    "offhand"
+  ],
+  "effects": {}
+}

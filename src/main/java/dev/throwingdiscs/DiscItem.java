@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
 /** Throw from either hand. Surviving discs return to the hand or inventory. */
@@ -36,7 +37,9 @@ public final class DiscItem extends Item {
         ItemStack flying = held.copy();
         flying.setCount(1);
         if (!creative) {
-            int newDamage = flying.getDamageValue() + 1;
+            // Unbreaking uses Minecraft's vanilla durability modifier.
+            int cost = EnchantmentHelper.processDurabilityChange(world, flying, 1);
+            int newDamage = flying.getDamageValue() + cost;
             // Break before launching, as any tool reaching zero durability would.
             if (newDamage >= flying.getMaxDamage()) {
                 held.shrink(1);

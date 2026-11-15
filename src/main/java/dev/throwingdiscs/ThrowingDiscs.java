@@ -18,9 +18,6 @@ public final class ThrowingDiscs implements ModInitializer {
     public static final String ID = "throwingdiscs";
 
     public static final DiscItem COPPER = register(new DiscStats("copper", 190, 3f, .85, 13, 18, 1, 4, 11));
-    // Utility variants: honey fetches items, slime knocks enemies away.
-    public static final DiscItem HONEY_COPPER = register(new DiscStats("honey_copper", 190, 0f, .85, 13, 18, 0, 0, 11));
-    public static final DiscItem SLIME_COPPER = register(new DiscStats("slime_copper", 190, 0f, .85, 18, 23, 5, 4, 11));
     public static final DiscItem IRON = register(new DiscStats("iron", 400, 4f, .95, 17, 22, 2, 6, 10));
     public static final DiscItem GOLDEN = register(new DiscStats("golden", 140, 3.5f, 1.16, 17, 19, 3, 6, 7));
     public static final DiscItem DIAMOND = register(new DiscStats("diamond", 900, 6f, 1.05, 22, 24, 4, 9, 9));
@@ -44,8 +41,6 @@ public final class ThrowingDiscs implements ModInitializer {
                     .icon(() -> new ItemStack(DIAMOND))
                     .displayItems((context, output) -> {
                         output.accept(COPPER);
-                        output.accept(HONEY_COPPER);
-                        output.accept(SLIME_COPPER);
                         output.accept(IRON);
                         output.accept(GOLDEN);
                         output.accept(DIAMOND);

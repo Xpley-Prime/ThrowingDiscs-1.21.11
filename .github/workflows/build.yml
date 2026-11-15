@@ -39,8 +39,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ThrowingDiscs-Fabric-1.21.11
-          path: build/libs/throwingdiscs-1.0.0.jar
+          name: ThrowingDiscs-3.0.0-MC1.21.11
+          path: build/libs/ThrowingDiscs-MC1.21.11-3.0.0.jar
           if-no-files-found: error
       - name: Upload smoke-test logs
         if: always()

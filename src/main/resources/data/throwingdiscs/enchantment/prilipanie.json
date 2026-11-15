@@ -1,0 +1,23 @@
+{
+  "description": {
+    "translate": "enchantment.throwingdiscs.prilipanie"
+  },
+  "supported_items": "#throwingdiscs:discs",
+  "primary_items": "#throwingdiscs:discs",
+  "weight": 3,
+  "max_level": 1,
+  "min_cost": {
+    "base": 18,
+    "per_level_above_first": 0
+  },
+  "max_cost": {
+    "base": 48,
+    "per_level_above_first": 0
+  },
+  "anvil_cost": 4,
+  "slots": [
+    "mainhand",
+    "offhand"
+  ],
+  "effects": {}
+}
