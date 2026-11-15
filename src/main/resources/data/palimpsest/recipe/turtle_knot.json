@@ -1,1 +1,1 @@
-{"type":"minecraft:crafting_shapeless","category":"equipment","ingredients":[{"item":"minecraft:amethyst_shard"},{"item":"minecraft:scute"}],"result":{"id":"palimpsest:turtle_knot","count":1}}
+{"type":"minecraft:crafting_shapeless","category":"equipment","ingredients":[{"item":"minecraft:amethyst_shard"},{"item":"minecraft:turtle_scute"}],"result":{"id":"palimpsest:turtle_knot","count":1}}
