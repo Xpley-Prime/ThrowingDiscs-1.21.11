@@ -90,6 +90,10 @@ public final class ArcaneTools {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries->ITEMS.values().forEach(entries::accept));
     }
 
+    public static void bindAnchor(ServerPlayer player,BlockPos pos) {
+        ANCHORS.put(player.getUUID(),pos);
+        ANCHOR_LEVELS.put(player.getUUID(),player.level().dimension().identifier().toString());
+    }
     private static final class RelicItem extends Item {
         private final Tool type;
         RelicItem(Tool type,Properties properties) {super(properties);this.type=type;}
