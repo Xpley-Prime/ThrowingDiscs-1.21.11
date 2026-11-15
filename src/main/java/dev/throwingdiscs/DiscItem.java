@@ -11,13 +11,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-/** Right click with either hand: remove one disc until it flies back. */
+/** Throw from either hand. Surviving discs return to the hand or inventory. */
 public final class DiscItem extends Item {
     private final DiscStats stats;
 
     public DiscItem(DiscStats stats, Properties properties) {
         super(properties);
         this.stats = stats;
+    }
+
+    public DiscStats stats() {
+        return stats;
     }
 
     @Override
@@ -28,21 +32,28 @@ public final class DiscItem extends Item {
         if (!(player instanceof ServerPlayer owner) || !(level instanceof ServerLevel world))
             return InteractionResult.PASS;
 
-        // Preserve custom name, enchantments and durability for the returning copy.
-        ItemStack flyingStack = held.copy();
-        flyingStack.setCount(1);
         boolean creative = owner.getAbilities().instabuild;
-        int nextDamage = flyingStack.getDamageValue() + 1;
-        boolean breaksOnReturn = !creative && nextDamage >= flyingStack.getMaxDamage();
-        if (!creative && !breaksOnReturn) flyingStack.setDamageValue(nextDamage);
+        ItemStack flying = held.copy();
+        flying.setCount(1);
+        if (!creative) {
+            int newDamage = flying.getDamageValue() + 1;
+            // Break before launching, as any tool reaching zero durability would.
+            if (newDamage >= flying.getMaxDamage()) {
+                held.shrink(1);
+                world.playSound(null, owner.getX(), owner.getY(), owner.getZ(),
+                        SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
+                return InteractionResult.SUCCESS;
+            }
+            flying.setDamageValue(newDamage);
+        }
 
-        if (!DiscFlights.launch(world, owner, flyingStack, stats, !creative && !breaksOnReturn))
-            return InteractionResult.FAIL;
-
+        DiscProjectile projectile = new DiscProjectile(world, owner, flying, hand, creative);
+        if (!world.addFreshEntity(projectile)) return InteractionResult.FAIL;
         if (!creative) held.shrink(1);
-        owner.getCooldowns().addCooldown(flyingStack, stats.cooldownTicks());
+
+        owner.getCooldowns().addCooldown(flying, stats.cooldownTicks());
         world.playSound(null, owner.getX(), owner.getY(), owner.getZ(),
-                SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 0.6F, 1.5F);
+                SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, .75f, 1.45f);
         return InteractionResult.SUCCESS;
     }
 }

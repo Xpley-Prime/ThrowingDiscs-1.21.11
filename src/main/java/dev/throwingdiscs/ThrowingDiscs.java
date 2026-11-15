@@ -2,14 +2,14 @@ package dev.throwingdiscs;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,11 +17,21 @@ import net.minecraft.world.item.ItemStack;
 public final class ThrowingDiscs implements ModInitializer {
     public static final String ID = "throwingdiscs";
 
-    public static final DiscItem COPPER = register(new DiscStats("copper", 180, 3f, 1.10, 14, 1, 1, 12));
-    public static final DiscItem IRON = register(new DiscStats("iron", 350, 4.5f, 1.25, 19, 2, 2, 11));
-    public static final DiscItem GOLDEN = register(new DiscStats("golden", 110, 3.5f, 1.75, 20, 3, 2, 7));
-    public static final DiscItem DIAMOND = register(new DiscStats("diamond", 900, 6f, 1.5, 26, 4, 4, 9));
-    public static final DiscItem NETHERITE = register(new DiscStats("netherite", 1600, 8f, 1.65, 30, 5, 5, 8));
+    public static final DiscItem COPPER = register(new DiscStats("copper", 190, 3f, .85, 13, 18, 1, 4, 11));
+    public static final DiscItem IRON = register(new DiscStats("iron", 400, 4f, .95, 17, 22, 2, 6, 10));
+    public static final DiscItem GOLDEN = register(new DiscStats("golden", 140, 3.5f, 1.16, 17, 19, 3, 6, 7));
+    public static final DiscItem DIAMOND = register(new DiscStats("diamond", 900, 6f, 1.05, 22, 24, 4, 9, 9));
+    public static final DiscItem NETHERITE = register(new DiscStats("netherite", 1700, 7.5f, 1.14, 24, 26, 5, 12, 8));
+
+    private static final Identifier PROJECTILE_ID = Identifier.fromNamespaceAndPath(ID, "throwing_disc");
+    private static final ResourceKey<EntityType<?>> PROJECTILE_KEY =
+            ResourceKey.create(Registries.ENTITY_TYPE, PROJECTILE_ID);
+
+    public static final EntityType<DiscProjectile> PROJECTILE =
+            Registry.register(BuiltInRegistries.ENTITY_TYPE, PROJECTILE_KEY,
+                    EntityType.Builder.<DiscProjectile>of(DiscProjectile::new, MobCategory.MISC)
+                            .sized(.46f, .20f).clientTrackingRange(10).updateInterval(1)
+                            .build(PROJECTILE_KEY));
 
     public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(
             Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath(ID, "discs"));
@@ -41,14 +51,13 @@ public final class ThrowingDiscs implements ModInitializer {
         Identifier id = Identifier.fromNamespaceAndPath(ID, stats.name() + "_disc");
         ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, id);
         return Registry.register(BuiltInRegistries.ITEM, key,
-                new DiscItem(stats, new Item.Properties().setId(key).durability(stats.durability()).enchantable(12)));
+                new DiscItem(stats, new Item.Properties().setId(key)
+                        .durability(stats.durability()).enchantable(12)));
     }
 
     @Override
     public void onInitialize() {
-        // Hold references so registration occurs before the game freezes its registries.
+        // Class initialization registers the five items, entity type and tab.
         TAB.toString();
-        ServerTickEvents.END_SERVER_TICK.register(DiscFlights::tick);
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> DiscFlights.releaseAll());
     }
 }

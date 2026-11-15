@@ -3,7 +3,7 @@
   "id": "throwingdiscs",
   "version": "${version}",
   "name": "Throwing Discs",
-  "description": "Five returning and ricocheting throwing discs, with crafting recipes.",
+  "description": "Trailer-inspired boomerang discs with real projectile hitboxes, ricochets and spinning visuals.",
   "authors": [
     "Community mod project"
   ],
@@ -12,6 +12,9 @@
   "entrypoints": {
     "main": [
       "dev.throwingdiscs.ThrowingDiscs"
+    ],
+    "client": [
+      "dev.throwingdiscs.ThrowingDiscsClient"
     ]
   },
   "depends": {

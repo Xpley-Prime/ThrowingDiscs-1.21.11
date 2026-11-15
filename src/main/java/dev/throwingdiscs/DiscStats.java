@@ -1,8 +1,9 @@
 package dev.throwingdiscs;
 
-/** The five variants share one codepath; only these balancing parameters differ. */
-public record DiscStats(
-        String name, int durability, float damage, double speed,
-        double range, int maxBounces, int maxTargets, int cooldownTicks
-) {
-}
+/**
+ * Approximate, configurable-by-code values: Mojang has not published the
+ * trailer's final exact weapon statistics.
+ */
+public record DiscStats(String name, int durability, float damage, double speed,
+                        double maxRange, int flightTicks, int maxBounces,
+                        int maxTargets, int cooldownTicks) { }
