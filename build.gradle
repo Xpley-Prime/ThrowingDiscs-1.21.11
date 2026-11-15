@@ -106,3 +106,4 @@ tasks.register('generateArcaneArt') {
     }
 }
 tasks.named('processResources') { dependsOn(tasks.named('generateArcaneArt')) }
+tasks.named('sourcesJar') { dependsOn(tasks.named('generateArcaneArt')) }
