@@ -189,7 +189,9 @@ public final class DiscProjectile extends ThrowableItemProjectile {
             }
         }
 
-        if (pierced >= spec.maxTargets()) returning = true;
+        // Utility discs with zero allowed targets must not return immediately.
+        // Honey returns only on pickup, block collision, or its normal range/time limit.
+        if (spec.maxTargets() > 0 && pierced >= spec.maxTargets()) returning = true;
         syncDisplay(world);
     }
 
