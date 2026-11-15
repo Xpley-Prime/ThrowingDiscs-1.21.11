@@ -1,0 +1,8 @@
+{
+  "item.throwingdiscs.copper_disc": "Copper Throwing Disc",
+  "item.throwingdiscs.iron_disc": "Iron Throwing Disc",
+  "item.throwingdiscs.golden_disc": "Golden Throwing Disc",
+  "item.throwingdiscs.diamond_disc": "Diamond Throwing Disc",
+  "item.throwingdiscs.netherite_disc": "Netherite Throwing Disc",
+  "itemGroup.throwingdiscs": "Throwing Discs"
+}

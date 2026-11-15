@@ -1,0 +1,8 @@
+{
+  "item.throwingdiscs.copper_disc": "Медный метательный диск",
+  "item.throwingdiscs.iron_disc": "Железный метательный диск",
+  "item.throwingdiscs.golden_disc": "Золотой метательный диск",
+  "item.throwingdiscs.diamond_disc": "Алмазный метательный диск",
+  "item.throwingdiscs.netherite_disc": "Незеритовый метательный диск",
+  "itemGroup.throwingdiscs": "Метательные диски"
+}

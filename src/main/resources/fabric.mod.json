@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "throwingdiscs",
+  "version": "${version}",
+  "name": "Throwing Discs",
+  "description": "Five returning and ricocheting throwing discs, with crafting recipes.",
+  "authors": [
+    "Community mod project"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.throwingdiscs.ThrowingDiscs"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
