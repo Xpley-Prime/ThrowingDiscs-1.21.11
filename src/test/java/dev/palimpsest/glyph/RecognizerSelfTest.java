@@ -21,6 +21,7 @@ public final class RecognizerSelfTest {
                 passed++;
             }
         }
+        if(Glyph.values().length<25)throw new AssertionError("Expected at least 25 independent glyphs");
         int correctlyRejected=0;
         for(Glyph.Role role:Glyph.Role.values()) {
             for(int k=0;k<300;k++) {
