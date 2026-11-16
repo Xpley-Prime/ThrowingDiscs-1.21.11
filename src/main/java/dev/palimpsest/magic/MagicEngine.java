@@ -125,7 +125,7 @@ public final class MagicEngine {
         ServerLevel level=(ServerLevel)player.level();
         boolean invert=modifier==Glyph.INVERT;
         int radius=modifier==Glyph.SPREAD?3:modifier==Glyph.FOCUS?0:1;
-        Vec3 hit=aim(player,16);
+        Vec3 hit=aim(player,16,element,invert);
         BlockPos center=BlockPos.containing(hit);
         int worldChanged=0;
         switch(intent){
@@ -263,10 +263,23 @@ public final class MagicEngine {
         }
     }
 
-    private static Vec3 aim(ServerPlayer player,double reach){
-        HitResult hit=player.pick(reach,0,false);
-        if(hit instanceof BlockHitResult b && hit.getType()==HitResult.Type.BLOCK)
-            return Vec3.atCenterOf(b.getBlockPos().relative(b.getDirection()));
+    private static Vec3 aim(ServerPlayer player,double reach,Glyph element,boolean invert){
+        // Include fluid sources: without this, a water-freezing spell can never
+        // actually ray-trace the water surface it is supposed to transform.
+        HitResult hit=player.pick(reach,0,true);
+        if(hit instanceof BlockHitResult b && hit.getType()==HitResult.Type.BLOCK){
+            ServerLevel level=(ServerLevel)player.level();
+            BlockPos at=b.getBlockPos();
+            var state=level.getBlockState(at);
+            boolean placeable=state.canBeReplaced();
+            boolean shouldPlaceNext=(!invert && (element==Glyph.LIGHT||
+                element==Glyph.VEIL||element==Glyph.TIDE)) ||
+                (element==Glyph.STONE&&!state.is(net.minecraft.world.level.block.Blocks.GRAVEL)&&
+                    !state.is(net.minecraft.world.level.block.Blocks.SAND)) ||
+                (element==Glyph.CINDER&&!state.is(net.minecraft.world.level.block.Blocks.SAND));
+            if(!placeable&&shouldPlaceNext)at=at.relative(b.getDirection());
+            return Vec3.atCenterOf(at);
+        }
         return player.getEyePosition().add(player.getLookAngle().scale(Math.min(reach,10)));
     }
     private static LivingEntity findInSight(ServerPlayer player,int reach){
