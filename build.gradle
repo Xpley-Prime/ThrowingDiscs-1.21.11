@@ -32,6 +32,7 @@ java { withSourcesJar() }
 
 tasks.named('test', Test) {
     useJUnitPlatform()
+    testLogging { events 'failed'; exceptionFormat 'full'; showStandardStreams=true }
 }
 
 jar { from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } } }

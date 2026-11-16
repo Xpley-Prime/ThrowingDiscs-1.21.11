@@ -1,6 +1,9 @@
 package dev.palimpsest;
 
 import dev.palimpsest.glyph.*;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.world.item.CreativeModeTabs;
 import dev.palimpsest.content.ArcaneTools;
 import dev.palimpsest.content.ArcaneStations;
 import dev.palimpsest.content.ArcaneRituals;
@@ -35,6 +38,8 @@ public final class Palimpsest implements ModInitializer {
     @Override public void onInitialize() {
         QUILL = Registry.register(BuiltInRegistries.ITEM,QUILL_KEY,
             new Item(new Item.Properties().setId(QUILL_KEY).stacksTo(1)));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
+            .register(entries -> entries.accept(QUILL));
         ArcaneTools.register();
         ArcaneStations.register();
         PayloadTypeRegistry.playC2S().register(CastPayload.ID,CastPayload.CODEC);
@@ -62,6 +67,12 @@ public final class Palimpsest implements ModInitializer {
             }
         });
         ServerTickEvents.END_SERVER_TICK.register(MagicEngine::tick);
+        ServerPlayConnectionEvents.JOIN.register((handler,sender,server)->{
+            handler.player.sendSystemMessage(Component.literal(
+                "§5✦ PALIMPSEST §7— Возьми перо из «Инструментов» или скрафти. §bG§7 — начертания, §bK§7 — справочник."));
+            handler.player.sendSystemMessage(Component.literal(
+                "§7Формула: §eнамерение → стихия → необязательный оттенок. §7В книге есть образцы, а в атласе — все страницы."));
+        });
         ArcaneCatalogue.register();
         ArcanePersistence.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) ->
