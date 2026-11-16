@@ -34,6 +34,8 @@ jobs:
           test "$BLOCK_PNG" -eq 56
           test "$RECIPES" -ge 61
           python3 -c "import pathlib,json; f=list(pathlib.Path('src/main/resources').rglob('*.json')); [json.loads(p.read_text()) for p in f]; print('Parsed JSON assets:',len(f))"
+      - name: Verify every localized item, model and crafted recipe
+        run: python3 tools/check_assets.py
       - name: Smoke-test dedicated Minecraft server
         shell: bash
         run: |
