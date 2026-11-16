@@ -16,7 +16,7 @@ public final class GlyphRecognizer {
     private GlyphRecognizer() {}
 
     public record Match(Glyph glyph, double confidence) {
-        public boolean accepted() { return glyph != null && confidence >= .60; }
+        public boolean accepted() { return glyph != null && confidence >= .77; }
     }
 
     public static Match recognize(List<Point> raw, Glyph.Role role) {
