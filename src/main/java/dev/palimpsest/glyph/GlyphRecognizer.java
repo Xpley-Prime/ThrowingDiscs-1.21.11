@@ -54,12 +54,21 @@ public final class GlyphRecognizer {
     }
 
     private static double complexity(List<Point> stroke) {
+        // Do not count every mouse-sensor jitter as a genuine turn.
+        List<Point> uniform=resample(stroke,48),smooth=new ArrayList<>();
+        for(int i=0;i<uniform.size();i++){
+            double x=0,y=0;int n=0;
+            for(int j=Math.max(0,i-3);j<=Math.min(uniform.size()-1,i+3);j++){
+                x+=uniform.get(j).x();y+=uniform.get(j).y();n++;
+            }
+            smooth.add(new Point(x/n,y/n));
+        }
         double minX=1,minY=1,maxX=0,maxY=0,len=0;
-        for(int i=0;i<stroke.size();i++){
-            Point p=stroke.get(i);
+        for(int i=0;i<smooth.size();i++){
+            Point p=smooth.get(i);
             minX=Math.min(minX,p.x());minY=Math.min(minY,p.y());
             maxX=Math.max(maxX,p.x());maxY=Math.max(maxY,p.y());
-            if(i>0)len+=p.distance(stroke.get(i-1));
+            if(i>0)len+=p.distance(smooth.get(i-1));
         }
         return len/Math.max(.001,Math.max(maxX-minX,maxY-minY));
     }
