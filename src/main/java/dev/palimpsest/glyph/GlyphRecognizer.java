@@ -16,14 +16,22 @@ public final class GlyphRecognizer {
     private GlyphRecognizer() {}
 
     public record Match(Glyph glyph, double confidence) {
-        public boolean accepted() { return glyph != null && confidence >= .77; }
+        public boolean accepted() { return glyph != null && confidence >= .71; }
     }
 
     public static Match recognize(List<Point> raw, Glyph.Role role) {
         if (!validStroke(raw)) return new Match(null, 0);
         List<Point> input = prepare(raw);
+        double scribbleComplexity = complexity(raw);
         return Glyph.ofRole(role).stream()
-            .map(g -> new Match(g, 1 - Math.min(1, bestDistance(input, prepare(g.template())) / MAX_DISTANCE)))
+            .map(g -> {
+                // Random scribbles make many turns over a small area. A genuine
+                // hand-drawn rune may tremble, but its total length is bounded
+                // relative to the reference shape's size and arc length.
+                if(scribbleComplexity>complexity(g.template())*1.45+.55)
+                    return new Match(g,0);
+                return new Match(g,1-Math.min(1,bestDistance(input,prepare(g.template()))/MAX_DISTANCE));
+            })
             .max(Comparator.comparingDouble(Match::confidence))
             .orElse(new Match(null, 0));
     }
@@ -43,6 +51,17 @@ public final class GlyphRecognizer {
             before = p;
         }
         return Math.max(maxX-minX, maxY-minY) >= .25 && distance >= .4 && distance <= 15;
+    }
+
+    private static double complexity(List<Point> stroke) {
+        double minX=1,minY=1,maxX=0,maxY=0,len=0;
+        for(int i=0;i<stroke.size();i++){
+            Point p=stroke.get(i);
+            minX=Math.min(minX,p.x());minY=Math.min(minY,p.y());
+            maxX=Math.max(maxX,p.x());maxY=Math.max(maxY,p.y());
+            if(i>0)len+=p.distance(stroke.get(i-1));
+        }
+        return len/Math.max(.001,Math.max(maxX-minX,maxY-minY));
     }
 
     /** Evenly resample polyline, preserve aspect ratio, center around origin. */
