@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/purification_font"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/purification_font_top","side":"palimpsest:block/purification_font_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/purification_font_side"}}

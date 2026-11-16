@@ -30,8 +30,8 @@ jobs:
           BLOCK_PNG="$(grep -cE '^assets/palimpsest/textures/block/.*\.png$' jar-contents.txt)"
           RECIPES="$(grep -cE '^data/palimpsest/recipe/.*\.json$' jar-contents.txt)"
           echo "In JAR: $TOOL_PNG item textures, $BLOCK_PNG block textures, $RECIPES recipes"
-          test "$TOOL_PNG" -eq 33
-          test "$BLOCK_PNG" -eq 28
+          test "$TOOL_PNG" -eq 34
+          test "$BLOCK_PNG" -eq 56
           test "$RECIPES" -ge 61
           python3 -c "import pathlib,json; f=list(pathlib.Path('src/main/resources').rglob('*.json')); [json.loads(p.read_text()) for p in f]; print('Parsed JSON assets:',len(f))"
       - name: Smoke-test dedicated Minecraft server

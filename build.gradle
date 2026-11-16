@@ -47,63 +47,187 @@ publishing {
 }
 
 
-// Procedural original runic pixel art. Generated PNGs are included in the final JAR.
+// Runeforge art pipeline: hand-shaped silhouettes, engraved stone, individual sigils.
+// Every sprite is a crisp 32x32 RGBA PNG with its own shape, not a recolored square.
 def arcaneArtDir=layout.buildDirectory.dir('generated/palimpsest-art')
 sourceSets.main.resources.srcDir(arcaneArtDir)
 tasks.register('generateArcaneArt') {
     outputs.dir(arcaneArtDir)
     doLast {
         def root=arcaneArtDir.get().asFile
-        def outputImage={ String group, String name, int index, boolean station ->
-            def image=new java.awt.image.BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_ARGB)
-            float h=((index*41+(station?107:19))%360)/360.0f
-            int accent=java.awt.Color.getHSBColor(h,0.64f,0.96f).getRGB()
-            int sub=java.awt.Color.getHSBColor(h,0.54f,0.46f).getRGB()
-            int gold=0xFFFFE19A
-            int metal=0xFF6F708B
-            int dark=0xFF1B2037
-            for(int y=0;y<16;y++)for(int x=0;x<16;x++){
-                double dx=x-7.5,dy=y-7.5,r=Math.sqrt(dx*dx+dy*dy)
-                if(station){
-                    int edge=Math.min(Math.min(x,15-x),Math.min(y,15-y))
-                    int base=edge==0?dark:edge==1?metal:edge==2?sub:0xFF292E44
-                    if((x==3||x==12)&&(y==3||y==12))base=gold
-                    if(r>=4.3 && r<=5.4)base=accent
-                    if((index&1)!=0 && y==7 && x>=5 && x<=10)base=accent
-                    if((index&2)!=0 && x==7 && y>=4 && y<=11)base=gold
-                    if((index&4)!=0 && Math.abs(dx-dy)<0.7 && r<4.5)base=accent
-                    if((index&8)!=0 && Math.abs(dx+dy)<0.7 && r<4.5)base=gold
-                    if((index&16)!=0 && (x==5||x==10) && y>=5 && y<=10)base=accent
-                    image.setRGB(x,y,base)
-                } else {
-                    int shape=index%8;boolean visible=false
-                    if(shape==0) visible=(Math.abs(dx+dy*0.65)<1.25 && Math.abs(dy)<6)||r<2.8
-                    if(shape==1) visible=(r>3.1&&r<5.3)||r<2.0
-                    if(shape==2) visible=(x>=4&&x<=11&&y>=5&&y<=12)||(x>=6&&x<=9&&y>=2&&y<=6)
-                    if(shape==3) visible=(Math.abs(dx)<2&&Math.abs(dy)<6)||(Math.abs(dy)<2&&Math.abs(dx)<6)
-                    if(shape==4) visible=(r>=2.8&&r<5.4&&y>=4)||(y>=2&&y<5&&x>=6&&x<=9)
-                    if(shape==5) visible=(Math.abs(dx-dy)<1.4&&r<6)||(r<3)
-                    if(shape==6) visible=(x>=3&&x<=12&&y>=3&&y<=13)&&((x==3||x==12||y==3||y==13)||(y==7||y==10))
-                    if(shape==7) visible=(Math.abs(dx)+Math.abs(dy)<6.5)
-                    if(visible){
-                        int col=r<2.1?gold:(x+y)%5==0?sub:accent
-                        image.setRGB(x,y,col)
-                    }
-                }
-            }
-            def file=new File(root,'assets/palimpsest/textures/'+group+'/'+name+'.png')
+        def rgba={ int value -> new java.awt.Color(value,true) }
+        def writePng={ String kind,String id,def picture ->
+            def file=new File(root,'assets/palimpsest/textures/'+kind+'/'+id+'.png')
             file.parentFile.mkdirs()
-            javax.imageio.ImageIO.write(image,'png',file)
+            javax.imageio.ImageIO.write(picture,'png',file)
+        }
+        def palette={ String id,int n ->
+            float hue
+            if(id =~ /frost|polar|rime|tide|ocean|tidal|rain/)hue=.54f
+            else if(id =~ /ember|fire|lava|hearth|sun|solar|blood/)hue=.055f
+            else if(id =~ /seed|earth|verdant|gleaner|spring|healing|beast/)hue=.34f
+            else if(id =~ /storm|jump|sky|wind|aeolian|magnet/)hue=.15f
+            else if(id =~ /shadow|night|spectral|mirror|warp|soul/)hue=.75f
+            else if(id =~ /stone|basalt|metal|iron|gold|forge/)hue=.10f
+            else hue=((n*37+217)%360)/360.0f
+            return [java.awt.Color.getHSBColor(hue,.63f,.98f),
+                    java.awt.Color.getHSBColor(hue,.48f,.52f),
+                    java.awt.Color.getHSBColor(hue,.25f,1.0f)]
+        }
+        def C={ int value -> new java.awt.Color(value,true) }
+        def paintItem={ String id,int index ->
+            def p=palette(id,index)
+            def img=new java.awt.image.BufferedImage(32,32,java.awt.image.BufferedImage.TYPE_INT_ARGB)
+            def g=img.createGraphics()
+            g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                java.awt.RenderingHints.VALUE_ANTIALIAS_OFF)
+            def col={ java.awt.Color c -> g.setColor(c) }
+            def rect={ int x,int y,int w,int h -> g.fillRect(x,y,w,h) }
+            def line={ int x,int y,int a,int b -> g.drawLine(x,y,a,b) }
+            def poly={ List<Integer> xs,List<Integer> ys ->
+                g.fillPolygon(xs.collect{it.intValue()} as int[],ys.collect{it.intValue()} as int[],xs.size())
+            }
+            def ring={ int x,int y,int w,int h -> g.drawOval(x,y,w,h) }
+            def dark=C(0xFF12192D),steel=C(0xFF67758B),gold=C(0xFFF7D39A),glow=p[0],shadow=p[1],pale=p[2]
+            // Item silhouettes are generated from actual semantic families.
+            if(id =~ /needle|stylus|hook|scythe|feather|thread|spool|singer/){
+                col(dark);g.setStroke(new java.awt.BasicStroke(6f));line(6,27,23,6)
+                col(gold);g.setStroke(new java.awt.BasicStroke(3f));line(7,26,22,8)
+                col(steel);g.setStroke(new java.awt.BasicStroke(1f));line(8,25,20,10)
+                col(glow);poly([19,26,24,18],[4,7,14,12])
+                col(pale);rect(20,6,3,3)
+                if(id =~ /scythe|hook/){
+                    col(glow);g.setStroke(new java.awt.BasicStroke(3f))
+                    line(20,6,27,10);line(27,10,27,17)
+                }
+                if(id =~ /thread|spool/){
+                    col(shadow);rect(7,19,8,7);col(gold);rect(6,18,10,2);rect(6,26,10,2)
+                }
+            }else if(id =~ /flask|phial|coffer|heart|prism|core/){
+                col(dark);poly([9,22,27,26,7,5],[12,12,18,29,29,18])
+                col(steel);rect(12,6,8,6);col(gold);rect(11,5,10,2)
+                col(shadow);poly([9,22,24,23,9,8],[17,17,20,27,27,20])
+                col(glow);poly([11,21,24,21,11,8],[17,17,21,26,26,21])
+                col(pale);rect(12,18,3,3);rect(16,15,2,2)
+                if(id =~ /heart/){
+                    col(glow);poly([7,12,16,20,25,26,16,6],[14,10,13,10,14,19,28,19])
+                    col(pale);rect(11,14,5,2)
+                }
+            }else if(id =~ /lens|eye|dial|mirror|gong|bell/){
+                col(dark);g.fillOval(4,3,24,24);col(gold);g.drawOval(4,3,24,24)
+                col(steel);g.drawOval(6,5,20,20);col(shadow);g.fillOval(9,8,14,14)
+                col(glow);g.drawOval(10,9,12,12)
+                col(pale);g.fillOval(15,12,4,4);rect(11,10,3,2)
+                if(id =~ /lens|mirror/){col(gold);rect(14,25,4,5)}
+                if(id =~ /dial/){col(gold);line(16,16,16,8);line(16,16,21,18)}
+            }else if(id =~ /knot|seed|stamp|coil|lure|lantern|turtle/){
+                col(dark);poly([16,25,29,23,16,7,3,9],[2,7,16,25,30,25,16,7])
+                col(gold);g.drawPolygon([16,25,29,23,16,7,3,9] as int[],
+                    [2,7,16,25,30,25,16,7] as int[],8)
+                col(shadow);g.fillOval(9,8,15,16);col(glow);g.fillOval(12,11,9,10)
+                col(pale);rect(14,13,3,5)
+                if(id =~ /seed|lure/){
+                    col(C(0xFF65B78C));line(16,21,16,10);line(16,14,10,11);line(16,17,22,12)
+                }
+            }else{
+                // Astral talisman family: layered hexagonal crystal + unique keymarks.
+                col(dark);poly([16,25,28,16,4,7],[2,9,20,30,20,9])
+                col(gold);g.drawPolygon([16,25,28,16,4,7] as int[],
+                    [2,9,20,30,20,9] as int[],6)
+                col(shadow);poly([16,23,24,16,8,9],[7,11,19,25,19,11])
+                col(glow);poly([16,20,22,16,10,12],[9,13,19,23,19,13])
+                col(pale);rect(15,13,3,5)
+            }
+            // Runic maker marks change orientation and shape, not just hue.
+            col(gold)
+            for(int i=0;i<4;i++){
+                int n=(index*19+i*13)%5
+                int x=4+n*5,y=27-i%2*2
+                if((index & (1<<i))!=0)rect(x,y,2,2)
+            }
+            col(glow)
+            if((index&4)!=0){line(11,21,20,12)}
+            if((index&8)!=0){line(11,12,20,21)}
+            g.dispose()
+            writePng('item',id,img)
+        }
+        def paintBlock={String id,int index,boolean top ->
+            def p=palette(id,index)
+            def img=new java.awt.image.BufferedImage(32,32,java.awt.image.BufferedImage.TYPE_INT_ARGB)
+            def g=img.createGraphics()
+            g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                java.awt.RenderingHints.VALUE_ANTIALIAS_OFF)
+            def col={java.awt.Color c -> g.setColor(c)}
+            def rect={int x,int y,int w,int h->g.fillRect(x,y,w,h)}
+            def line={int x,int y,int a,int b->g.drawLine(x,y,a,b)}
+            def ring={int x,int y,int w,int h->g.drawOval(x,y,w,h)}
+            def charcoal=C(0xFF151B2D),granite=C(0xFF323B52),
+                steel=C(0xFF53627B),gold=C(0xFFBA9366),goldLight=C(0xFFE7C991),
+                accent=p[0],dim=p[1],pale=p[2]
+            col(charcoal);rect(0,0,32,32)
+            // Hand-worked dark stone: bevels, mortise joints and dither.
+            col(granite);rect(2,2,28,28)
+            col(steel);line(1,1,30,1);line(1,1,1,30)
+            col(C(0xFF0E1424));line(2,30,30,30);line(30,2,30,30)
+            for(int i=0;i<18;i++){
+                int x=3+(index*17+i*11)%26,y=3+(index*23+i*7)%26
+                col((i%3==0)?steel:C(0xFF242D43));rect(x,y,1+(i%2),1)
+            }
+            col(gold);rect(3,3,4,1);rect(3,3,1,4)
+            rect(25,3,4,1);rect(28,3,1,4)
+            rect(3,28,4,1);rect(3,25,1,4)
+            rect(25,28,4,1);rect(28,25,1,4)
+            if(top){
+                col(charcoal);g.fillOval(6,6,20,20)
+                col(gold);ring(5,5,21,21)
+                col(dim);ring(8,8,15,15)
+                col(accent);ring(10,10,11,11)
+                col(pale);rect(14,4,4,2);rect(14,26,4,2)
+                // 28 dedicated chiseled symbol arrangements
+                col(accent)
+                int mode=index%7
+                if(mode==0){line(12,12,20,20);line(20,12,12,20)}
+                if(mode==1){line(12,19,16,11);line(16,11,21,19);line(21,19,12,19)}
+                if(mode==2){line(11,16,21,16);line(16,11,16,21)}
+                if(mode==3){g.drawOval(12,12,8,8);rect(15,15,2,2)}
+                if(mode==4){line(12,11,20,20);line(20,20,13,20);line(13,20,19,11)}
+                if(mode==5){line(11,13,16,19);line(16,19,21,13);line(21,13,11,13)}
+                if(mode==6){line(13,11,13,21);line(13,21,19,21);line(19,21,19,11)}
+                col(pale);rect(15,15,2,2)
+                col(goldLight)
+                if((index&1)!=0)rect(5,15,3,1)
+                if((index&2)!=0)rect(24,15,3,1)
+                if((index&4)!=0)rect(15,5,1,3)
+                if((index&8)!=0)rect(15,24,1,3)
+            }else{
+                // Architectural side: portal arch, metallic corner braces, rune vein.
+                col(charcoal);rect(6,6,20,25)
+                col(steel);line(7,26,7,12);line(24,26,24,12)
+                col(gold);line(8,14,11,8);line(11,8,20,8);line(20,8,23,14)
+                col(dim);rect(9,15,14,12)
+                col(accent);rect(11,18,10,6)
+                col(pale);rect(14,18,4,4)
+                col(goldLight)
+                int n=(index*7)%4
+                if(n==0){line(13,12,19,12);line(16,9,16,15)}
+                if(n==1){line(13,10,19,15);line(13,15,19,10)}
+                if(n==2){line(13,12,16,9);line(16,9,19,12);line(19,12,16,15)}
+                if(n==3){ring(13,9,6,6)}
+                col(gold);rect(8,27,16,2)
+            }
+            g.dispose()
+            writePng('block',id+(top?'_top':'_side'),img)
         }
         def blocks=fileTree('src/main/resources/assets/palimpsest/models/block')
-            .matching { include '*.json' }.files.collect { it.name.substring(0,it.name.length()-5) }.sort()
+            .matching{include '*.json'}.files.collect{it.name.substring(0,it.name.length()-5)}.sort()
         def items=fileTree('src/main/resources/assets/palimpsest/models/item')
-            .matching { include '*.json' }.files.collect { it.name.substring(0,it.name.length()-5) }
-            .findAll { it!='scribe_quill' && !blocks.contains(it) }.sort()
-        items.eachWithIndex { name,index -> outputImage('item',name,index,false) }
-        blocks.eachWithIndex { name,index -> outputImage('block',name,index,true) }
-        if(items.size()!=32 || blocks.size()!=28)
-            throw new GradleException('Expected 32 tool textures and 28 station textures, got '+items.size()+'/'+blocks.size())
+            .matching{include '*.json'}.files.collect{it.name.substring(0,it.name.length()-5)}
+            .findAll{it!='scribe_quill'&&!blocks.contains(it)}.sort()
+        items.eachWithIndex{name,index->paintItem(name,index)}
+        paintItem('scribe_quill_relic',32)
+        blocks.eachWithIndex{name,index->paintBlock(name,index,true);paintBlock(name,index,false)}
+        if(items.size()!=32||blocks.size()!=28)
+            throw new GradleException('Wrong runeforge resource manifest '+items.size()+'/'+blocks.size())
     }
 }
 tasks.named('processResources') { dependsOn(tasks.named('generateArcaneArt')) }

@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/star_chart"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/star_chart_top","side":"palimpsest:block/star_chart_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/star_chart_side"}}

@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/tidal_fountain"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/tidal_fountain_top","side":"palimpsest:block/tidal_fountain_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/tidal_fountain_side"}}

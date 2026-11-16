@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/relic_forge"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/relic_forge_top","side":"palimpsest:block/relic_forge_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/relic_forge_side"}}

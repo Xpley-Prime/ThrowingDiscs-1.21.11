@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/ritual_altar"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/ritual_altar_top","side":"palimpsest:block/ritual_altar_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/ritual_altar_side"}}

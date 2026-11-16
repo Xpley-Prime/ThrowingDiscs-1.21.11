@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/lava_crucible"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/lava_crucible_top","side":"palimpsest:block/lava_crucible_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/lava_crucible_side"}}

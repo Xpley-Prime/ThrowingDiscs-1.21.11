@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/charm_press"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/charm_press_top","side":"palimpsest:block/charm_press_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/charm_press_side"}}

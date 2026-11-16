@@ -1,4 +1,1 @@
-{
-  "parent": "minecraft:item/handheld",
-  "textures": {"layer0": "palimpsest:item/scribe_quill"}
-}
+{"parent":"minecraft:item/handheld","textures":{"layer0":"palimpsest:item/scribe_quill_relic"}}

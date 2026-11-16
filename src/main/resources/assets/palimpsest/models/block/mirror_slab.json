@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/mirror_slab"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/mirror_slab_top","side":"palimpsest:block/mirror_slab_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/mirror_slab_side"}}

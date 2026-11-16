@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/aeolian_fan"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/aeolian_fan_top","side":"palimpsest:block/aeolian_fan_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/aeolian_fan_side"}}

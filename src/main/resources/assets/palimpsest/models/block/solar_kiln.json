@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/solar_kiln"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/solar_kiln_top","side":"palimpsest:block/solar_kiln_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/solar_kiln_side"}}

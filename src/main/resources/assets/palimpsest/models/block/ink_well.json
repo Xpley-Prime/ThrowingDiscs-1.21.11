@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/ink_well"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/ink_well_top","side":"palimpsest:block/ink_well_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/ink_well_side"}}

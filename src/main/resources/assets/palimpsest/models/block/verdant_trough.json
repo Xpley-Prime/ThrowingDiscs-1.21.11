@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/verdant_trough"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/verdant_trough_top","side":"palimpsest:block/verdant_trough_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/verdant_trough_side"}}

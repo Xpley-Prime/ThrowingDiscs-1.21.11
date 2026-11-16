@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"palimpsest:block/rest_waystone"}}
+{"parent":"minecraft:block/cube_bottom_top","textures":{"top":"palimpsest:block/rest_waystone_top","side":"palimpsest:block/rest_waystone_side","bottom":"minecraft:block/polished_blackstone","particle":"palimpsest:block/rest_waystone_side"}}
