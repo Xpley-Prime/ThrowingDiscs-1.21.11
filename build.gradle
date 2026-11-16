@@ -55,7 +55,7 @@ tasks.register('generateArcaneArt') {
     outputs.dir(arcaneArtDir)
     doLast {
         def root=arcaneArtDir.get().asFile
-        def rgba={ int value -> new java.awt.Color(value,true) }
+        def rgba={ Number value -> new java.awt.Color(value.intValue(),true) }
         def writePng={ String kind,String id,def picture ->
             def file=new File(root,'assets/palimpsest/textures/'+kind+'/'+id+'.png')
             file.parentFile.mkdirs()
@@ -74,7 +74,7 @@ tasks.register('generateArcaneArt') {
                     java.awt.Color.getHSBColor(hue,.48f,.52f),
                     java.awt.Color.getHSBColor(hue,.25f,1.0f)]
         }
-        def C={ int value -> new java.awt.Color(value,true) }
+        def C={ Number value -> new java.awt.Color(value.intValue(),true) }
         def paintItem={ String id,int index ->
             def p=palette(id,index)
             def img=new java.awt.image.BufferedImage(32,32,java.awt.image.BufferedImage.TYPE_INT_ARGB)
