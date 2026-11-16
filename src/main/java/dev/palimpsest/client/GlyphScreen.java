@@ -110,8 +110,9 @@ public final class GlyphScreen extends Screen {
         g.drawString(font,clip("Tab — все "+examples.size()+" знаков",w),x,y+15,FAINT);
         int show=Math.min(3,examples.size());
         for(int i=0;i<show;i++){
-            Glyph glyph=examples.get(i),p=null;
+            Glyph glyph=examples.get(i);
             int yy=y+37+i*57,sz=43;
+            if(yy+sz>height-56)break;
             g.fill(x,yy,x+sz,yy+sz,0xFF162039);
             drawStroke(g,glyph.template(),x+4,yy+4,sz-8,glyph.color(),1);
             drawOrigin(g,glyph.template(),x+4,yy+4,sz-8);
@@ -130,7 +131,7 @@ public final class GlyphScreen extends Screen {
             width/2,height-17,FAINT);
     }
 
-    private int atlasRows(){return Math.max(2,Math.min(8,(height-164)/54));}
+    private int atlasRows(){return Math.max(1,Math.min(8,(height-145)/54));}
     private int atlasPages(){
         return Math.max(1,(Glyph.ofRole(switch(atlasRole){
             case 1->Glyph.Role.ELEMENT;case 2->Glyph.Role.INFLECTION;default->Glyph.Role.INTENT;
@@ -145,7 +146,7 @@ public final class GlyphScreen extends Screen {
         return switch(atlasRole){case 1->Glyph.Role.ELEMENT;case 2->Glyph.Role.INFLECTION;default->Glyph.Role.INTENT;};
     }
     private void renderAtlas(GuiGraphics g){
-        int x=10,y=45,w=width-20,h=Math.max(88,height-100);
+        int x=10,y=45,w=width-20,h=Math.max(60,height-100);
         g.fill(x,y,x+w,y+h,PANEL);
         String[] tabs={"1 · НАМЕРЕНИЕ","2 · СТИХИЯ","3 · ОТТЕНОК"};
         int tabWidth=Math.max(1,w/3);

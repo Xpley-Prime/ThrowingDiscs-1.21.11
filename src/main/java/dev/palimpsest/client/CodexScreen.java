@@ -88,7 +88,7 @@ public final class CodexScreen extends Screen {
         while(!t.isEmpty() && font.width(t+"…")>max)t=t.substring(0,t.length()-1);
         return t+"…";
     }
-    private int rows(){return Math.max(2,Math.min(10,(height-150)/25));}
+    private int rows(){return Math.max(1,Math.min(10,(height-165)/25));}
     private int countPages(){return Math.max(1,(int)Math.ceil(entries().size()/(double)rows()));}
     private void page(int diff){
         page=Math.max(0,Math.min(countPages()-1,page+diff));

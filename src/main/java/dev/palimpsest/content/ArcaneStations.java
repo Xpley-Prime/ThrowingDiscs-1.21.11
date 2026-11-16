@@ -46,7 +46,7 @@ public final class ArcaneStations {
         STAR_CHART("star_chart","Звёздная карта","Определяет положение в мире"),
         HEART_FOUNTAIN("heart_fountain","Фонтан сердца","Восстанавливает здоровье и пищу"),
         GUARDIAN_PLINTH("guardian_plinth","Постамент стража","Поражает ближайших монстров"),
-        LUMEN_BRAZIER("lumen_brazier","Брачный огонь","Дарует ночное зрение окружающим"),
+        LUMEN_BRAZIER("lumen_brazier","Светоч","Дарует ночное зрение окружающим"),
         MIRROR_SLAB("mirror_slab","Зеркальная плита","Скрывает мага и сбрасывает левитацию"),
         ORE_RESONATOR("ore_resonator","Резонатор руды","Находит ближайшую жилу"),
         MENDING_FORGE("mending_forge","Горн починки","Восстанавливает прочность вещей"),
